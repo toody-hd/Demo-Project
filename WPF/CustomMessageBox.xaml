@@ -1,0 +1,131 @@
+﻿<Window x:Class="WPF.CustomMessageBox"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:p="clr-namespace:WPF.Properties"
+        xmlns:local="clr-namespace:WPF"
+        mc:Ignorable="d"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ResizeMode="NoResize"
+        SizeToContent="WidthAndHeight"
+        ShowInTaskbar="False"
+        WindowStartupLocation="CenterOwner" Closed="Window_Closed">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome ResizeBorderThickness="5"
+                      CaptionHeight="30"
+                      GlassFrameThickness="0"
+                      CornerRadius="20"/>
+    </WindowChrome.WindowChrome>
+
+    <Border BorderBrush="#80747686" Style="{StaticResource MainWindow}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0" Panel.ZIndex="1" Style="{StaticResource TitleBar}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0" 
+                        WindowChrome.IsHitTestVisibleInChrome="True"
+                        Command="{Binding MenuCommand}"
+                        Style="{StaticResource StripButton}">
+                    <Image Source="Files/logo.ico"/>
+                </Button>
+                <TextBlock Name="TitleM"
+                           Grid.Column="1"
+                           Text="Title"
+                           FontSize="20"
+                           Foreground="Blue"
+                           HorizontalAlignment="Center"
+                           Margin="0,0,0,0"/>
+                <StackPanel Grid.Column="2"
+                            WindowChrome.IsHitTestVisibleInChrome="True"
+                            Orientation="Horizontal">
+                    <Button Content="_"
+                            Visibility="Collapsed"
+                            Command="{Binding MinimizeCommand}"
+                            Style="{StaticResource WindowControlButton}"/>
+                    <Button Content="[ ]"
+                            Visibility="Collapsed"
+                            Command="{Binding MaximizeCommand}"
+                            Style="{StaticResource WindowControlButton}"/>
+                    <Button Content="X"
+                            IsCancel="True"
+                            Command="{Binding WindowCloseCommand}"
+                            Style="{StaticResource WindowCloseButton}"/>
+                </StackPanel>
+            </Grid>
+            <Border Grid.Row="1"
+                    Height="6"
+                    BorderThickness="0 0.2 0 0"
+                    Style="{StaticResource MainShadow}">
+            </Border>
+            <StackPanel Background="GhostWhite" Grid.Row="2">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Image Name="img"
+                           Visibility="Collapsed"
+                           Margin="5" 
+                           Grid.Row="1"
+                           Grid.Column="0"
+                           Width="50"
+                           Height="50"
+                           Stretch="Fill" 
+                           VerticalAlignment="Top" 
+                           HorizontalAlignment="Left" />
+                <TextBlock Name="Message"
+                           Text="Message"
+                           Margin="10 10 10 0"
+                           FontSize="20"
+                           Foreground="Red"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" 
+                            HorizontalAlignment="Center" 
+                            VerticalAlignment="Center">
+                    <Button Name="okBtn"
+                            Content="OK"  
+                            Click="Button_Click"
+                            HorizontalAlignment="Center"
+                            Foreground="White"
+                            Padding="30 10"
+                            Margin="7 10"
+                            Style="{StaticResource CornerdButton}"/>
+                    <Button Name="yesBtn"
+                            Content="{x:Static p:Resources.Yes}"
+                            Click="Button_Click"
+                            HorizontalAlignment="Center"
+                            Foreground="White"
+                            Padding="30 10"
+                            Margin="7 10"
+                            Style="{StaticResource CornerdButton}"/>
+                    <Button Name="noBtn"
+                            Content="{x:Static p:Resources.No}"
+                            Click="Button_Click"
+                            HorizontalAlignment="Center"
+                            Foreground="White"
+                            Padding="30 10"
+                            Margin="7 10"
+                            Style="{StaticResource CornerdButton}"/>
+                    <Button Name="cancelBtn"
+                            Content="{x:Static p:Resources.Cancel}"
+                            Click="Button_Click"
+                            HorizontalAlignment="Center"
+                            Foreground="White"
+                            Padding="30 10"
+                            Margin="7 10"
+                            Style="{StaticResource CornerdButton}"/>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

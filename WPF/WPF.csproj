@@ -1,0 +1,523 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{878CA897-8FBE-426B-8ABF-B2514F7965EB}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>WPF</RootNamespace>
+    <AssemblyName>WPF</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WarningLevel>4</WarningLevel>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Files\Logo.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xaml">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Compile Include="AddNewPanel.xaml.cs">
+      <DependentUpon>AddNewPanel.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Converters\BitmapConversion.cs" />
+    <Compile Include="Pages\GeneralSettingsPage.xaml.cs">
+      <DependentUpon>GeneralSettingsPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\VisualSettingsPage.xaml.cs">
+      <DependentUpon>VisualSettingsPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Resources.ro-RO.Designer.cs">
+      <DependentUpon>Resources.ro-RO.resx</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Properties\Resources.de-DE.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.de-DE.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Resources.ja-JP.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.ja-JP.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\Languages.cs" />
+    <Compile Include="Settings\Settings.cs" />
+    <Compile Include="Test.xaml.cs">
+      <DependentUpon>Test.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ViewModels\AddNewPanelViewModel.cs" />
+    <Compile Include="ViewModels\GeneralSettingsPageViewModel.cs" />
+    <Compile Include="ViewModels\SettingsPageViewModel.cs" />
+    <Compile Include="ViewModels\MainPageViewModel.cs" />
+    <Compile Include="ViewModels\LoginPageViewModel.cs" />
+    <Compile Include="ViewModels\MainViewModel.cs" />
+    <Compile Include="ViewModels\CustomMessageBoxViewModel.cs" />
+    <Compile Include="ViewModels\RelayCommand.cs" />
+    <Page Include="Animations\Fade_GrowShrink.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="AddNewPanel.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="CustomMessageBox.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="MainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CustomMessageBox.xaml.cs">
+      <DependentUpon>CustomMessageBox.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="MainWindow.xaml.cs">
+      <DependentUpon>MainWindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Page Include="Pages\GeneralSettingsPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\LoginPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\SettingsPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\MainPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\VisualSettingsPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Styles\Font.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Styles\Shadow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Animations\BackgroundFade.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Styles\TitleBar.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Styles\Page.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Styles\ScrollBar.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Styles\TextBox.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Styles\Button.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Test.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Pages\LoginPage.xaml.cs">
+      <DependentUpon>LoginPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\SettingsPage.xaml.cs">
+      <DependentUpon>SettingsPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\MainPage.xaml.cs">
+      <DependentUpon>MainPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <EmbeddedResource Include="Properties\Resources.ro-RO.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.ro-RO.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.ja-JP.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.ja-JP.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.de-DE.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.de-DE.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <Resource Include="Fonts\FontAwesome-WebFont.ttf" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Files\Logo.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Controls\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\INIHandler\INIHandler.csproj">
+      <Project>{fbbeccb5-9f35-4f81-963b-1ae462098e89}</Project>
+      <Name>INIHandler</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.6.2">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4.6.2 %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Files\Countries\ad.png" />
+    <Resource Include="Files\Countries\ae.png" />
+    <Resource Include="Files\Countries\af.png" />
+    <Resource Include="Files\Countries\ag.png" />
+    <Resource Include="Files\Countries\ai.png" />
+    <Resource Include="Files\Countries\al.png" />
+    <Resource Include="Files\Countries\am.png" />
+    <Resource Include="Files\Countries\an.png" />
+    <Resource Include="Files\Countries\ao.png" />
+    <Resource Include="Files\Countries\ar.png" />
+    <Resource Include="Files\Countries\as.png" />
+    <Resource Include="Files\Countries\at.png" />
+    <Resource Include="Files\Countries\au.png" />
+    <Resource Include="Files\Countries\aw.png" />
+    <Resource Include="Files\Countries\ax.png" />
+    <Resource Include="Files\Countries\az.png" />
+    <Resource Include="Files\Countries\ba.png" />
+    <Resource Include="Files\Countries\bb.png" />
+    <Resource Include="Files\Countries\bd.png" />
+    <Resource Include="Files\Countries\be.png" />
+    <Resource Include="Files\Countries\bf.png" />
+    <Resource Include="Files\Countries\bg.png" />
+    <Resource Include="Files\Countries\bh.png" />
+    <Resource Include="Files\Countries\bi.png" />
+    <Resource Include="Files\Countries\bj.png" />
+    <Resource Include="Files\Countries\bm.png" />
+    <Resource Include="Files\Countries\bn.png" />
+    <Resource Include="Files\Countries\bo.png" />
+    <Resource Include="Files\Countries\br.png" />
+    <Resource Include="Files\Countries\bs.png" />
+    <Resource Include="Files\Countries\bt.png" />
+    <Resource Include="Files\Countries\bv.png" />
+    <Resource Include="Files\Countries\bw.png" />
+    <Resource Include="Files\Countries\by.png" />
+    <Resource Include="Files\Countries\bz.png" />
+    <Resource Include="Files\Countries\ca.png" />
+    <Resource Include="Files\Countries\catalonia.png" />
+    <Resource Include="Files\Countries\cc.png" />
+    <Resource Include="Files\Countries\cd.png" />
+    <Resource Include="Files\Countries\cf.png" />
+    <Resource Include="Files\Countries\cg.png" />
+    <Resource Include="Files\Countries\ch.png" />
+    <Resource Include="Files\Countries\ci.png" />
+    <Resource Include="Files\Countries\ck.png" />
+    <Resource Include="Files\Countries\cl.png" />
+    <Resource Include="Files\Countries\cm.png" />
+    <Resource Include="Files\Countries\cn.png" />
+    <Resource Include="Files\Countries\co.png" />
+    <Resource Include="Files\Countries\cr.png" />
+    <Resource Include="Files\Countries\cs.png" />
+    <Resource Include="Files\Countries\cu.png" />
+    <Resource Include="Files\Countries\cv.png" />
+    <Resource Include="Files\Countries\cx.png" />
+    <Resource Include="Files\Countries\cy.png" />
+    <Resource Include="Files\Countries\cz.png" />
+    <Resource Include="Files\Countries\de.png" />
+    <Resource Include="Files\Countries\dj.png" />
+    <Resource Include="Files\Countries\dk.png" />
+    <Resource Include="Files\Countries\dm.png" />
+    <Resource Include="Files\Countries\do.png" />
+    <Resource Include="Files\Countries\dz.png" />
+    <Resource Include="Files\Countries\ec.png" />
+    <Resource Include="Files\Countries\ee.png" />
+    <Resource Include="Files\Countries\eg.png" />
+    <Resource Include="Files\Countries\eh.png" />
+    <Resource Include="Files\Countries\england.png" />
+    <Resource Include="Files\Countries\er.png" />
+    <Resource Include="Files\Countries\es.png" />
+    <Resource Include="Files\Countries\et.png" />
+    <Resource Include="Files\Countries\europeanunion.png" />
+    <Resource Include="Files\Countries\fam.png" />
+    <Resource Include="Files\Countries\fi.png" />
+    <Resource Include="Files\Countries\fj.png" />
+    <Resource Include="Files\Countries\fk.png" />
+    <Resource Include="Files\Countries\fm.png" />
+    <Resource Include="Files\Countries\fo.png" />
+    <Resource Include="Files\Countries\fr.png" />
+    <Resource Include="Files\Countries\ga.png" />
+    <Resource Include="Files\Countries\gb.png" />
+    <Resource Include="Files\Countries\gd.png" />
+    <Resource Include="Files\Countries\ge.png" />
+    <Resource Include="Files\Countries\gf.png" />
+    <Resource Include="Files\Countries\gh.png" />
+    <Resource Include="Files\Countries\gi.png" />
+    <Resource Include="Files\Countries\gl.png" />
+    <Resource Include="Files\Countries\gm.png" />
+    <Resource Include="Files\Countries\gn.png" />
+    <Resource Include="Files\Countries\gp.png" />
+    <Resource Include="Files\Countries\gq.png" />
+    <Resource Include="Files\Countries\gr.png" />
+    <Resource Include="Files\Countries\gs.png" />
+    <Resource Include="Files\Countries\gt.png" />
+    <Resource Include="Files\Countries\gu.png" />
+    <Resource Include="Files\Countries\gw.png" />
+    <Resource Include="Files\Countries\gy.png" />
+    <Resource Include="Files\Countries\hk.png" />
+    <Resource Include="Files\Countries\hm.png" />
+    <Resource Include="Files\Countries\hn.png" />
+    <Resource Include="Files\Countries\hr.png" />
+    <Resource Include="Files\Countries\ht.png" />
+    <Resource Include="Files\Countries\hu.png" />
+    <Resource Include="Files\Countries\id.png" />
+    <Resource Include="Files\Countries\ie.png" />
+    <Resource Include="Files\Countries\il.png" />
+    <Resource Include="Files\Countries\in.png" />
+    <Resource Include="Files\Countries\io.png" />
+    <Resource Include="Files\Countries\iq.png" />
+    <Resource Include="Files\Countries\ir.png" />
+    <Resource Include="Files\Countries\is.png" />
+    <Resource Include="Files\Countries\it.png" />
+    <Resource Include="Files\Countries\jm.png" />
+    <Resource Include="Files\Countries\jo.png" />
+    <Resource Include="Files\Countries\jp.png" />
+    <Resource Include="Files\Countries\ke.png" />
+    <Resource Include="Files\Countries\kg.png" />
+    <Resource Include="Files\Countries\kh.png" />
+    <Resource Include="Files\Countries\ki.png" />
+    <Resource Include="Files\Countries\km.png" />
+    <Resource Include="Files\Countries\kn.png" />
+    <Resource Include="Files\Countries\kp.png" />
+    <Resource Include="Files\Countries\kr.png" />
+    <Resource Include="Files\Countries\kw.png" />
+    <Resource Include="Files\Countries\ky.png" />
+    <Resource Include="Files\Countries\kz.png" />
+    <Resource Include="Files\Countries\la.png" />
+    <Resource Include="Files\Countries\lb.png" />
+    <Resource Include="Files\Countries\lc.png" />
+    <Resource Include="Files\Countries\li.png" />
+    <Resource Include="Files\Countries\lk.png" />
+    <Resource Include="Files\Countries\lr.png" />
+    <Resource Include="Files\Countries\ls.png" />
+    <Resource Include="Files\Countries\lt.png" />
+    <Resource Include="Files\Countries\lu.png" />
+    <Resource Include="Files\Countries\lv.png" />
+    <Resource Include="Files\Countries\ly.png" />
+    <Resource Include="Files\Countries\ma.png" />
+    <Resource Include="Files\Countries\mc.png" />
+    <Resource Include="Files\Countries\md.png" />
+    <Resource Include="Files\Countries\me.png" />
+    <Resource Include="Files\Countries\mg.png" />
+    <Resource Include="Files\Countries\mh.png" />
+    <Resource Include="Files\Countries\mk.png" />
+    <Resource Include="Files\Countries\ml.png" />
+    <Resource Include="Files\Countries\mm.png" />
+    <Resource Include="Files\Countries\mn.png" />
+    <Resource Include="Files\Countries\mo.png" />
+    <Resource Include="Files\Countries\mp.png" />
+    <Resource Include="Files\Countries\mq.png" />
+    <Resource Include="Files\Countries\mr.png" />
+    <Resource Include="Files\Countries\ms.png" />
+    <Resource Include="Files\Countries\mt.png" />
+    <Resource Include="Files\Countries\mu.png" />
+    <Resource Include="Files\Countries\mv.png" />
+    <Resource Include="Files\Countries\mw.png" />
+    <Resource Include="Files\Countries\mx.png" />
+    <Resource Include="Files\Countries\my.png" />
+    <Resource Include="Files\Countries\mz.png" />
+    <Resource Include="Files\Countries\na.png" />
+    <Resource Include="Files\Countries\nc.png" />
+    <Resource Include="Files\Countries\ne.png" />
+    <Resource Include="Files\Countries\nf.png" />
+    <Resource Include="Files\Countries\ng.png" />
+    <Resource Include="Files\Countries\ni.png" />
+    <Resource Include="Files\Countries\nl.png" />
+    <Resource Include="Files\Countries\no.png" />
+    <Resource Include="Files\Countries\np.png" />
+    <Resource Include="Files\Countries\nr.png" />
+    <Resource Include="Files\Countries\nu.png" />
+    <Resource Include="Files\Countries\nz.png" />
+    <Resource Include="Files\Countries\om.png" />
+    <Resource Include="Files\Countries\pa.png" />
+    <Resource Include="Files\Countries\pe.png" />
+    <Resource Include="Files\Countries\pf.png" />
+    <Resource Include="Files\Countries\pg.png" />
+    <Resource Include="Files\Countries\ph.png" />
+    <Resource Include="Files\Countries\pk.png" />
+    <Resource Include="Files\Countries\pl.png" />
+    <Resource Include="Files\Countries\pm.png" />
+    <Resource Include="Files\Countries\pn.png" />
+    <Resource Include="Files\Countries\pr.png" />
+    <Resource Include="Files\Countries\ps.png" />
+    <Resource Include="Files\Countries\pt.png" />
+    <Resource Include="Files\Countries\pw.png" />
+    <Resource Include="Files\Countries\py.png" />
+    <Resource Include="Files\Countries\qa.png" />
+    <Resource Include="Files\Countries\re.png" />
+    <Resource Include="Files\Countries\ro.png" />
+    <Resource Include="Files\Countries\rs.png" />
+    <Resource Include="Files\Countries\ru.png" />
+    <Resource Include="Files\Countries\rw.png" />
+    <Resource Include="Files\Countries\sa.png" />
+    <Resource Include="Files\Countries\sb.png" />
+    <Resource Include="Files\Countries\sc.png" />
+    <Resource Include="Files\Countries\scotland.png" />
+    <Resource Include="Files\Countries\sd.png" />
+    <Resource Include="Files\Countries\se.png" />
+    <Resource Include="Files\Countries\sg.png" />
+    <Resource Include="Files\Countries\sh.png" />
+    <Resource Include="Files\Countries\si.png" />
+    <Resource Include="Files\Countries\sj.png" />
+    <Resource Include="Files\Countries\sk.png" />
+    <Resource Include="Files\Countries\sl.png" />
+    <Resource Include="Files\Countries\sm.png" />
+    <Resource Include="Files\Countries\sn.png" />
+    <Resource Include="Files\Countries\so.png" />
+    <Resource Include="Files\Countries\sr.png" />
+    <Resource Include="Files\Countries\st.png" />
+    <Resource Include="Files\Countries\sv.png" />
+    <Resource Include="Files\Countries\sy.png" />
+    <Resource Include="Files\Countries\sz.png" />
+    <Resource Include="Files\Countries\tc.png" />
+    <Resource Include="Files\Countries\td.png" />
+    <Resource Include="Files\Countries\tf.png" />
+    <Resource Include="Files\Countries\tg.png" />
+    <Resource Include="Files\Countries\th.png" />
+    <Resource Include="Files\Countries\tj.png" />
+    <Resource Include="Files\Countries\tk.png" />
+    <Resource Include="Files\Countries\tl.png" />
+    <Resource Include="Files\Countries\tm.png" />
+    <Resource Include="Files\Countries\tn.png" />
+    <Resource Include="Files\Countries\to.png" />
+    <Resource Include="Files\Countries\tr.png" />
+    <Resource Include="Files\Countries\tt.png" />
+    <Resource Include="Files\Countries\tv.png" />
+    <Resource Include="Files\Countries\tw.png" />
+    <Resource Include="Files\Countries\tz.png" />
+    <Resource Include="Files\Countries\ua.png" />
+    <Resource Include="Files\Countries\ug.png" />
+    <Resource Include="Files\Countries\um.png" />
+    <Resource Include="Files\Countries\us.png" />
+    <Resource Include="Files\Countries\uy.png" />
+    <Resource Include="Files\Countries\uz.png" />
+    <Resource Include="Files\Countries\va.png" />
+    <Resource Include="Files\Countries\vc.png" />
+    <Resource Include="Files\Countries\ve.png" />
+    <Resource Include="Files\Countries\vg.png" />
+    <Resource Include="Files\Countries\vi.png" />
+    <Resource Include="Files\Countries\vn.png" />
+    <Resource Include="Files\Countries\vu.png" />
+    <Resource Include="Files\Countries\wales.png" />
+    <Resource Include="Files\Countries\wf.png" />
+    <Resource Include="Files\Countries\ws.png" />
+    <Resource Include="Files\Countries\ye.png" />
+    <Resource Include="Files\Countries\yt.png" />
+    <Resource Include="Files\Countries\za.png" />
+    <Resource Include="Files\Countries\zm.png" />
+    <Resource Include="Files\Countries\zw.png" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

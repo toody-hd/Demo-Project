@@ -1,0 +1,62 @@
+﻿<Page x:Class="WPF.GeneralSettingsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:p="clr-namespace:WPF.Properties"
+      xmlns:local="clr-namespace:WPF"
+      mc:Ignorable="d" 
+      d:DesignHeight="300" d:DesignWidth="300"
+      Title="GeneralSettingsPage">
+
+    <Grid Margin="15 15" TextBlock.FontSize="15">
+        <StackPanel>
+            <StackPanel Orientation="Horizontal" >
+                <TextBlock Text="{x:Static p:Resources.Settings_General_Language}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                </TextBlock>
+                <ComboBox x:Name="langCB" TextBlock.FontSize="10">
+                    <ComboBoxItem Content="English" Selected="ComboBoxEnglish_Selected"/>
+                    <ComboBoxItem Content="Română" Selected="ComboBoxRomanien_Selected"/>
+                    <ComboBoxItem Content="Deutsch" Selected="ComboBoxGerman_Selected"/>
+                    <ComboBoxItem Content="日本語" Selected="ComboBoxJapanese_Selected"/>
+                </ComboBox>
+            </StackPanel>
+            <CheckBox x:Name="miniCB" 
+                  Content="{x:Static p:Resources.Settings_General_MinimizationMode}"
+                  FlowDirection="RightToLeft"
+                  Padding="0 0 -5 0"
+                  Command="{Binding MiniModeCommand}" 
+                  HorizontalAlignment="Left" 
+                  HorizontalContentAlignment="Center" 
+                  VerticalContentAlignment="Center" 
+                  VerticalAlignment="Center"/>
+            <CheckBox x:Name="topCB" 
+                  Content="{x:Static p:Resources.Settings_General_TopmostMode}"
+                  FlowDirection="RightToLeft"
+                  Padding="0 0 -5 0"
+                  Command="{Binding TopmostModeCommand}" 
+                  HorizontalAlignment="Left" 
+                  HorizontalContentAlignment="Center" 
+                  VerticalContentAlignment="Center" 
+                  VerticalAlignment="Center"/>
+            <CheckBox x:Name="messageCB" 
+                  Content="{x:Static p:Resources.Settings_General_MessageSystemTray}"
+                  FlowDirection="RightToLeft"
+                  Padding="0 0 -5 0"
+                  Command="{Binding MessageModeCommand}" 
+                  HorizontalAlignment="Left" 
+                  HorizontalContentAlignment="Center" 
+                  VerticalContentAlignment="Center" 
+                  VerticalAlignment="Center"/>
+            <StackPanel Orientation="Horizontal" >
+                <TextBlock Text="{x:Static p:Resources.Settings_General_ExclusionList}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                </TextBlock>
+                <ComboBox x:Name="excludeCB" 
+                          TextBlock.FontSize="10"/>
+            </StackPanel>
+            <Expander Header="Custom geting data from link">
+                
+            </Expander>
+        </StackPanel>
+    </Grid>
+</Page>

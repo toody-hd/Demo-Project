@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.15
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WPF", "WPF\WPF.csproj", "{878CA897-8FBE-426B-8ABF-B2514F7965EB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "INIHandler", "INIHandler\INIHandler.csproj", "{FBBECCB5-9F35-4F81-963B-1AE462098E89}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{878CA897-8FBE-426B-8ABF-B2514F7965EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{878CA897-8FBE-426B-8ABF-B2514F7965EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{878CA897-8FBE-426B-8ABF-B2514F7965EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{878CA897-8FBE-426B-8ABF-B2514F7965EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FBBECCB5-9F35-4F81-963B-1AE462098E89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FBBECCB5-9F35-4F81-963B-1AE462098E89}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FBBECCB5-9F35-4F81-963B-1AE462098E89}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FBBECCB5-9F35-4F81-963B-1AE462098E89}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

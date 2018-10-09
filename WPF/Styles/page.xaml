@@ -1,0 +1,12 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:WPF.Styles">
+
+    <!-- Main Window -->
+    <Style x:Key="MainWindow" TargetType="{x:Type Border}">
+        <Setter Property="BorderThickness" Value="6"/>
+        <Setter Property="BorderBrush" Value="#80999999"/>
+        <Setter Property="Background" Value="Transparent"/>
+    </Style>
+
+</ResourceDictionary>

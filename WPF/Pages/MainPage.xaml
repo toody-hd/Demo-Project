@@ -1,0 +1,121 @@
+﻿<Page x:Class="WPF.MainPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:WPF"
+      xmlns:controls="clr-namespace:WPF"
+      mc:Ignorable="d" 
+      d:DesignHeight="600" d:DesignWidth="900"
+      Title="windowPage"
+      Style="{StaticResource Fade_Grow}">
+    
+    <Page.Resources>
+        <Style x:Key="ListBoxDragDrop" TargetType="{x:Type ListBoxItem}">
+            <Setter Property="AllowDrop" Value="true"/>
+            <Setter Property="Focusable" Value="False"/>
+            <EventSetter Event="PreviewMouseMove" Handler="MainLB_PreviewMouseMove"/>
+            <EventSetter Event="PreviewMouseLeftButtonDown" Handler="MainLBItem_PreviewMouseLeftButtonDown"/>
+            <EventSetter Event="Drop" Handler="MainLB_Drop"/>
+        </Style>
+        <Style x:Key="ComboBoxItemStyle" TargetType="{x:Type ComboBoxItem}">
+            <EventSetter Event="MouseDown" Handler="_CBI_MouseDown"/>
+        </Style>
+        <Style TargetType="{x:Type ListBox}">
+            <Setter Property="ItemsPanel">
+                <Setter.Value>
+                    <ItemsPanelTemplate>
+                        <WrapPanel />
+                    </ItemsPanelTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility"
+                    Value="Disabled"/>
+        </Style>
+    </Page.Resources>
+    
+    <Border Padding="10" Background="LightGray">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <StackPanel x:Name="sortSP" Orientation="Horizontal">
+            </StackPanel>
+            <Grid x:Name="gridSP">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="1"
+                        Content="{StaticResource FontAwesomeSearchIcon}"
+                        FontFamily="{StaticResource FontAwesome}"
+                        Foreground="White"
+                        Height="40"
+                        HorizontalAlignment="Right"
+                        Style="{StaticResource IconGrowButton}"
+                        Command="{Binding SearchCommand}"/>
+                <TextBox Grid.Column="2"
+                         Name="searchTB"
+                         IsEnabled="False"
+                         VerticalContentAlignment="Center"
+                         Width="0" Height="25" 
+                         TextChanged="SearchTB_TextChanged"
+                         LostFocus="SearchTB_LostFocus"/>
+                <Button Grid.Column="3"
+                        Content="{StaticResource FontAwesomeSyncIcon}"
+                        FontFamily="{StaticResource FontAwesome}"
+                        Foreground="White"
+                        Height="40"
+                        HorizontalAlignment="Right"
+                        Style="{StaticResource IconGrowButton}"
+                        Command="{Binding UpdateCommand}"/>
+                <Button Grid.Column="4"
+                        Content="{StaticResource FontAwesomePlusIcon}"
+                        FontFamily="{StaticResource FontAwesome}"
+                        Foreground="White"
+                        Height="40"
+                        HorizontalAlignment="Right"
+                        Style="{StaticResource IconGrowButton}"
+                        Command="{Binding AddNewPanelCommand}"/>
+                <Button Grid.Column="5"
+                        Content="{StaticResource FontAwesomeCogIcon}"
+                        FontFamily="{StaticResource FontAwesome}"
+                        Foreground="White"
+                        Height="40"
+                        HorizontalAlignment="Right"
+                        Style="{StaticResource IconGrowButton}"
+                        Command="{Binding SettingsCommand}"/>
+                <Button Grid.Column="6"
+                        Content="{StaticResource FontAwesomeSignOutIcon}"
+                        FontFamily="{StaticResource FontAwesome}"
+                        Foreground="White"
+                        Height="40"
+                        HorizontalAlignment="Right"
+                        Style="{StaticResource IconGrowButton}"
+                        Command="{Binding LogOutCommand}"/>
+            </Grid>
+            <!-- user control
+            <controls:settings Visibility="Hidden"/>
+            -->
+            <!--
+            <ScrollViewer Grid.Row="1"
+                          x:Name="MyScrollViewer"
+                          HorizontalScrollBarVisibility="Auto"
+                          VerticalScrollBarVisibility="Auto">
+                <WrapPanel Name="mainWP" 
+                           Width="{Binding ElementName=MyScrollViewer, Path=ViewportWidth}"/>
+            </ScrollViewer>
+            -->
+            <ListBox Grid.Row="1" 
+                     Name="mainLB"
+                     Background="Transparent" 
+                     ItemContainerStyle="{StaticResource ListBoxDragDrop}"/>
+        </Grid>
+    </Border>
+</Page>
