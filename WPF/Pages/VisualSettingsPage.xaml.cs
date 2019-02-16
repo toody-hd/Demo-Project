@@ -15,9 +15,6 @@ using System.Windows.Shapes;
 
 namespace WPF
 {
-    /// <summary>
-    /// Interaction logic for VisualSettings.xaml
-    /// </summary>
     public partial class VisualSettingsPage : Page
     {
         public VisualSettingsPage()

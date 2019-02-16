@@ -8,10 +8,6 @@ namespace WPF
 {
     public partial class MainWindow : Window
     {
-        public INIFile filterFile = null;
-        public INIFile pannelFile = null;
-        public INIFile settingsFile = null;
-
         private System.Windows.Forms.NotifyIcon MyNotifyIcon;
 
         public MainWindow()
@@ -27,40 +23,66 @@ namespace WPF
 
         private void IniInitializer()
         {
-            if (File.Exists("filters.ini"))
-            {
-               filterFile = new INIFile("filters.ini");
-            }
+            //foreach (var x in InI.filtersFile.ReadSections())
+            //{
+            //    InI.filtersFile.RenameSection(x, InI.filtersFile.Read(x, "Name"));
+            //    InI.filtersFile.DeleteKey(x, "Name");
+            //}
 
-            if (File.Exists("panels.ini"))
-            {
-                pannelFile = new INIFile("panels.ini");
-            }
+            //foreach (var x in InI.panelsFile.ReadSections())
+            //{
+            //    File.Move(@"pictures/IMG-" + x.Substring(8) + ".png", @"pictures/" + InI.panelsFile.Read(x, "Name").Replace(":","") + ".png");
+            //    InI.panelsFile.RenameSection(x, InI.panelsFile.Read(x, "Name"));
+            //}
+            //foreach (var x in InI.panelsFile.ReadSections())
+            //{
+            //    InI.panelsFile.DeleteKey(x, "Name");
+            //}
 
-            if (File.Exists("settings.ini"))
+            if (InI.SettingsFileExist())
             {
-                settingsFile = new INIFile("settings.ini");
                 InitializeSettings();
             }
             else
             {
-                settingsFile = new INIFile("settings.ini");
-                settingsFile.Write("General", "MiniMode", "False");
-                settingsFile.Write("General", "TopMode", "False");
-                settingsFile.Write("General", "Language", "en-US");
-                settingsFile.Write("General", "MessageMode", "True");
+                InI.settingsFile.Write("General", "MiniMode", "False");
+                InI.settingsFile.Write("General", "TopMode", "False");
+                InI.settingsFile.Write("General", "Language", "en-US");
+                InI.settingsFile.Write("General", "MessageMode", "True");
+            }
+
+            if(InI.FiltersFileExist())
+            {
+                InitializeFilters();
             }
         }
 
         private void InitializeSettings()
         {
-            Settings._miniMode = Settings.miniMode = bool.Parse(settingsFile.Read("General", "MiniMode"));
-            Settings._topmostMode = Settings.topmostMode = bool.Parse(settingsFile.Read("General", "TopMode"));
-            Settings._lang = Settings.lang = settingsFile.Read("General", "Language");
-            Settings._messageMode = Settings.messageMode = bool.Parse(settingsFile.Read("General", "MessageMode"));
+            Settings._miniMode = Settings.miniMode = bool.Parse(InI.settingsFile.Read("General", "MiniMode"));
+            Settings._topmostMode = Settings.topmostMode = bool.Parse(InI.settingsFile.Read("General", "TopMode"));
+            Settings._lang = Settings.lang = InI.settingsFile.Read("General", "Language");
+            Settings._messageMode = Settings.messageMode = bool.Parse(InI.settingsFile.Read("General", "MessageMode"));
+
             this.Topmost = Settings.topmostMode;
             System.Threading.Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo(Settings.lang);
         }
+
+
+        private void InitializeFilters()
+        {
+            foreach(var x in InI.filtersFile.ReadSections())
+            {
+                Settings.filters.Add(new string[] {x, InI.filtersFile.Read(x, "ExcludeUpdate"), InI.filtersFile.Read(x, "HideOnStartUp") });
+            }
+            Settings._filters = Settings.filters;
+        }
+
+        //private void InitializeFilters()
+        //{
+        //    Settings._excUpd = Settings.excUpd;
+        //    Settings._hideSU = Settings.hideSU;
+        //}
 
         private void CreateContextMenu()
         {

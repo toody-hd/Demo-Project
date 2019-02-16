@@ -1,6 +1,8 @@
-﻿using System;
+﻿using INIHandler;
+using System;
 using System.Drawing;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
@@ -9,9 +11,10 @@ namespace WPF
 {
     public class AddNewPanelViewModel : MainViewModel
     {
+        #region Variables
         public bool ok = false;
         public string name;
-        public string link;
+        public string path;
         public string version;
         public string site;
         public string[] tags = { };
@@ -20,54 +23,56 @@ namespace WPF
         public Bitmap image = null;
         public System.Windows.Media.ImageSource imageSource;
 
-        private Window wnd;
+        private AddNewPanel wnd;
         private string _tags = null;
         private string updateSite;
+        #endregion
 
         public AddNewPanelViewModel(Window window) : base(window)
         {
-            wnd = window;
+            wnd = (AddNewPanel)window;
             AddCommand = new RelayCommand(() => AddBClick());
             BrowseCommand = new RelayCommand(() => BrowseB());
             UnknownCommand = new RelayCommand(() => UpdateCB());
             PictureCommand = new RelayCommand(() => ImageBClick());
             UpdateLinkCommand = new RelayCommand(() => UpdateLink());
-            CustomsCommand = new RelayCommand(() => UseCustoms());
 
             Initializer();
             Tags();
         }
 
+        #region ICommands
         public ICommand AddCommand { get; private set; }
         public ICommand BrowseCommand { get; private set; }
         public ICommand UnknownCommand { get; private set; }
         public ICommand CompletedCommand { get; private set; }
         public ICommand PictureCommand { get; private set; }
         public ICommand UpdateLinkCommand { get; private set; }
-        public ICommand CustomsCommand { get; private set; }
+        #endregion
 
         private void Initializer()
         {
-            (wnd as AddNewPanel).linkTB.AllowDrop = true;
-            (wnd as AddNewPanel).imageB.AllowDrop = true;
+            wnd.pathTB.AllowDrop = true;
+            wnd.imageB.AllowDrop = true;
 
-            (wnd as AddNewPanel).linkTB.PreviewDragOver += LinkTB_PreviewDragOver;
-            (wnd as AddNewPanel).linkTB.Drop += LinkTB_Drop;
-            (wnd as AddNewPanel).imageB.PreviewDragOver += ImageB_PreviewDragOver;
-            (wnd as AddNewPanel).imageB.Drop += ImageB_Drop;
-            (wnd as AddNewPanel).tagsCB.Items.Add(Properties.Resources.NoneSelected);
-            (wnd as AddNewPanel).tagsCB.SelectedIndex = 0;
+            wnd.pathTB.PreviewDragOver += LinkTB_PreviewDragOver;
+            wnd.pathTB.Drop += LinkTB_Drop;
+            wnd.imageB.PreviewDragOver += ImageB_PreviewDragOver;
+            wnd.imageB.Drop += ImageB_Drop;
+            wnd.tagsCB.Items.Add(Properties.Resources.NoneSelected);
+            wnd.tagsCB.SelectedIndex = 0;
+            wnd.siteTB.TextChanged += SiteTB_TextChanged;
         }
-
+        
         public void EditMode()
         {
-            (wnd as AddNewPanel).titleTB.Text = Properties.Resources.Edit_Title + " \"" + name + "\"";
-            (wnd as AddNewPanel).nameTB.Text = name;
-            (wnd as AddNewPanel).linkTB.Text = link;
-            (wnd as AddNewPanel).versionTB.Text = version;
-            (wnd as AddNewPanel).siteTB.Text = updateSite = site;
+            wnd.titleTB.Text = Properties.Resources.Edit_Title + " \"" + name + "\"";
+            wnd.nameTB.Text = name;
+            wnd.pathTB.Text = path;
+            wnd.versionTB.Text = version;
+            wnd.siteTB.Text = updateSite = site;
             int i = 0;
-            foreach (var x in (wnd as AddNewPanel).tagsCB.Items)
+            foreach (var x in wnd.tagsCB.Items)
             {
                 if (x.GetType() == typeof(System.Windows.Controls.CheckBox) && (x as System.Windows.Controls.CheckBox).Content.ToString() == tags[i])
                 {
@@ -83,18 +88,18 @@ namespace WPF
             }
             if (string.IsNullOrWhiteSpace(_tags))
                 _tags = Properties.Resources.NoneSelected;
-            (wnd as AddNewPanel).tagsCB.Items[0] = _tags;
-            (wnd as AddNewPanel).tagsCB.SelectedIndex = 0;
-            (wnd as AddNewPanel).completedCB.IsChecked = completed;
+            wnd.tagsCB.Items[0] = _tags;
+            wnd.tagsCB.SelectedIndex = 0;
+            wnd.completedCB.IsChecked = completed;
             if (updateDate != null && updateDate.ToShortDateString() != "1/1/0001")
-                (wnd as AddNewPanel).updateDTP.SelectedDate = updateDate;
+                wnd.updateDTP.SelectedDate = updateDate;
             else
             {
-                (wnd as AddNewPanel).updateCB.IsChecked = true;
-                (wnd as AddNewPanel).updateDTP.IsEnabled = false;
+                wnd.updateCB.IsChecked = true;
+                wnd.updateDTP.IsEnabled = false;
             }
-            (wnd as AddNewPanel).imagePB.Source = imageSource;
-            (wnd as AddNewPanel).addB.Content = Properties.Resources.Save_Button;
+            wnd.imagePB.Source = imageSource;
+            wnd.addB.Content = Properties.Resources.Save_Button;
 
         }
 
@@ -146,7 +151,7 @@ namespace WPF
 
             using (var bmpTemp = new Bitmap(new Bitmap(link[0]), size))
             {
-                (wnd as AddNewPanel).imagePB.Source = BitmapConversion.BitmapToBitmapSource(bmpTemp);
+                wnd.imagePB.Source = BitmapConversion.BitmapToBitmapSource(bmpTemp);
                 image = new Bitmap(bmpTemp);
             }
         }
@@ -164,7 +169,7 @@ namespace WPF
         private void LinkTB_Drop(object sender, System.Windows.DragEventArgs e)
         {
             string[] link = (string[])e.Data.GetData(System.Windows.DataFormats.FileDrop);
-            (wnd as AddNewPanel).linkTB.Text = link[0];
+            wnd.pathTB.Text = link[0];
         }
 
         private void BrowseB()
@@ -180,7 +185,7 @@ namespace WPF
             {
                 try
                 {
-                    (wnd as AddNewPanel).linkTB.Text = ofd.FileName;
+                    wnd.pathTB.Text = ofd.FileName;
                 }
                 catch (Exception ex)
                 {
@@ -191,30 +196,30 @@ namespace WPF
 
         private void UpdateCB()
         {
-            if ((wnd as AddNewPanel).updateCB.IsChecked == true)
-                (wnd as AddNewPanel).updateDTP.IsEnabled = false;
+            if (wnd.updateCB.IsChecked == true)
+                wnd.updateDTP.IsEnabled = false;
             else
-                (wnd as AddNewPanel).updateDTP.IsEnabled = true;
+                wnd.updateDTP.IsEnabled = true;
         }
 
         private void AddBClick()
         {
-            if ((wnd as AddNewPanel).nameTB.Text != "" && (wnd as AddNewPanel).linkTB.Text.EndsWith(".exe") && (wnd as AddNewPanel).versionTB.Text != "" && (wnd as AddNewPanel).siteTB.Text != "" && (wnd as AddNewPanel).imagePB.Source != null /* image != null */ && (((wnd as AddNewPanel).updateCB.IsChecked == false && (wnd as AddNewPanel).updateDTP.SelectedDate != null) || ((wnd as AddNewPanel).updateCB.IsChecked == true)))
+            if (wnd.nameTB.Text != "" && wnd.pathTB.Text.EndsWith(".exe") && wnd.versionTB.Text != "" && wnd.siteTB.Text != "" && wnd.imagePB.Source != null /* image != null */ && ((wnd.updateCB.IsChecked == false && wnd.updateDTP.SelectedDate != null) || (wnd.updateCB.IsChecked == true)))
             {
                 ok = true;
-                name = (wnd as AddNewPanel).nameTB.Text;
-                link = (wnd as AddNewPanel).linkTB.Text;
-                version = (wnd as AddNewPanel).versionTB.Text;
-                if (updateSite != (wnd as AddNewPanel).siteTB.Text)
+                name = wnd.nameTB.Text;
+                path = wnd.pathTB.Text;
+                version = wnd.versionTB.Text;
+                if (updateSite != wnd.siteTB.Text)
                 {
-                    foreach (var x in (wnd as AddNewPanel).tagsCB.Items)
+                    foreach (var x in wnd.tagsCB.Items)
                         if (x is System.Windows.Controls.CheckBox && (x as System.Windows.Controls.CheckBox).Name == "Update")
                         { (x as System.Windows.Controls.CheckBox).IsChecked = false; break; }
                 }
-                site = (wnd as AddNewPanel).siteTB.Text;
+                site = wnd.siteTB.Text;
                 int i = 0;
                 tags = new string[] { };
-                foreach (var x in (wnd as AddNewPanel).tagsCB.Items)
+                foreach (var x in wnd.tagsCB.Items)
                 {
                     if (x is System.Windows.Controls.CheckBox && (x as System.Windows.Controls.CheckBox).IsChecked == true)
                     {
@@ -223,9 +228,9 @@ namespace WPF
                         tags[i - 1] = (x as System.Windows.Controls.CheckBox).Content.ToString();
                     }
                 }
-                completed = (bool)(wnd as AddNewPanel).completedCB.IsChecked;
-                if ((wnd as AddNewPanel).updateDTP.SelectedDate != null && !(wnd as AddNewPanel).updateCB.IsChecked == true)
-                    updateDate = (DateTime)(wnd as AddNewPanel).updateDTP.SelectedDate;
+                completed = (bool)wnd.completedCB.IsChecked;
+                if (wnd.updateDTP.SelectedDate != null && !wnd.updateCB.IsChecked == true)
+                    updateDate = (DateTime)wnd.updateDTP.SelectedDate;
                 else
                     updateDate = new DateTime();
                 wnd.Close();
@@ -270,7 +275,7 @@ namespace WPF
 
                             using (var bmpTemp = new Bitmap(new Bitmap(ofd.FileName), size))
                             {
-                                (wnd as AddNewPanel).imagePB.Source = BitmapConversion.BitmapToBitmapSource(bmpTemp);
+                                wnd.imagePB.Source = BitmapConversion.BitmapToBitmapSource(bmpTemp);
                                 image = new Bitmap(bmpTemp);
                             }
                         }
@@ -285,13 +290,13 @@ namespace WPF
 
         private void Tags()
         {
-            if ((System.Windows.Application.Current.MainWindow as MainWindow).filterFile != null)
+            if (InI.FiltersFileExist())
             {
-                for (int i = 1; i <= int.Parse((System.Windows.Application.Current.MainWindow as MainWindow).filterFile.Read("FilterCount", "Count")); i++)
+                foreach (var x in InI.filtersFile.ReadSections())
                 {
-                    var _cb = new System.Windows.Controls.CheckBox {Tag = (System.Windows.Application.Current.MainWindow as MainWindow).filterFile.Read("Filter - " + i, "Name"), Content = (System.Windows.Application.Current.MainWindow as MainWindow).filterFile.Read("Filter - " + i, "Name") };
+                    var _cb = new System.Windows.Controls.CheckBox { Content = x };
                     _cb.Click += _cb_Click;
-                    (wnd as AddNewPanel).tagsCB.Items.Add(_cb);
+                    wnd.tagsCB.Items.Add(_cb);
                     _cb = null;
                 }
             }
@@ -305,8 +310,8 @@ namespace WPF
                     _tags = ((System.Windows.Controls.CheckBox)sender).Content.ToString();
                 else
                     _tags = _tags + "," + ((System.Windows.Controls.CheckBox)sender).Content.ToString();
-                (wnd as AddNewPanel).tagsCB.Items[0] = _tags;
-                (wnd as AddNewPanel).tagsCB.SelectedIndex = 0;
+                wnd.tagsCB.Items[0] = _tags;
+                wnd.tagsCB.SelectedIndex = 0;
             }
             else
             {
@@ -318,8 +323,8 @@ namespace WPF
                     _tags = _tags.Remove(0, 1);
                 if (string.IsNullOrWhiteSpace(_tags))
                     _tags = Properties.Resources.NoneSelected;
-                (wnd as AddNewPanel).tagsCB.Items[0] = _tags;
-                (wnd as AddNewPanel).tagsCB.SelectedIndex = 0;
+                wnd.tagsCB.Items[0] = _tags;
+                wnd.tagsCB.SelectedIndex = 0;
             }
         }
 
@@ -327,21 +332,22 @@ namespace WPF
         {
             System.Windows.Controls.WebBrowser _webBrowser = new System.Windows.Controls.WebBrowser();
             _webBrowser.Navigated += _webBrowser_Navigated;
-            if(Uri.IsWellFormedUriString((wnd as AddNewPanel).siteTB.Text, UriKind.Absolute))
+            if(Uri.IsWellFormedUriString(wnd.siteTB.Text, UriKind.Absolute))
             {
-                _webBrowser.Navigate((wnd as AddNewPanel).siteTB.Text);
-                (wnd as AddNewPanel).updateLinkBT.Content = "Updating...";
+                _webBrowser.Navigate(wnd.siteTB.Text);
+                wnd.updateLinkBT.Content = "Updating...";
             }
             else
-                (wnd as AddNewPanel).updateLinkBT.Content = "Invalid Link";
+                wnd.updateLinkBT.Content = "Invalid Link";
         }
 
         private void _webBrowser_Navigated(object sender, System.Windows.Navigation.NavigationEventArgs e)
         {
-            if ((wnd as AddNewPanel).siteTB.Text != (sender as System.Windows.Controls.WebBrowser).Source.ToString())
+            if (wnd.siteTB.Text != (sender as System.Windows.Controls.WebBrowser).Source.ToString())
             {
-                foreach (var x in (wnd as AddNewPanel).tagsCB.Items)
-                    if (x is System.Windows.Controls.CheckBox && (x as System.Windows.Controls.CheckBox).Tag.ToString() == "Update" && (x as System.Windows.Controls.CheckBox).IsChecked == true)
+                foreach (var x in wnd.tagsCB.Items)
+                    if (x is System.Windows.Controls.CheckBox && 
+                        (x as System.Windows.Controls.CheckBox).IsChecked == true)
                     {
                         (x as System.Windows.Controls.CheckBox).IsChecked = false;
                         _tags = _tags.Replace((x as System.Windows.Controls.CheckBox).Content.ToString(), "");
@@ -352,18 +358,30 @@ namespace WPF
                             _tags = _tags.Remove(0, 1);
                         if (string.IsNullOrWhiteSpace(_tags))
                             _tags = Properties.Resources.NoneSelected;
-                        (wnd as AddNewPanel).tagsCB.Items[0] = _tags;
-                        (wnd as AddNewPanel).tagsCB.SelectedIndex = 0;
+                        wnd.tagsCB.Items[0] = _tags;
+                        wnd.tagsCB.SelectedIndex = 0;
                         break;
                     }
-                (wnd as AddNewPanel).siteTB.Text = (sender as System.Windows.Controls.WebBrowser).Source.ToString();
+                wnd.siteTB.Text = (sender as System.Windows.Controls.WebBrowser).Source.ToString();
             }
-            (wnd as AddNewPanel).updateLinkBT.Content = "Done";
+            wnd.updateLinkBT.Content = "Done";
         }
 
-        private void UseCustoms()
+        private void SiteTB_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
-            
+            if (InI.ScriptsFileExist() && InI.scriptsFile.SectionExists("Scripts"))
+            {
+                if (string.IsNullOrEmpty(wnd.nameTB.Text) && InI.scriptsFile.KeyExists("Scripts", "Name") &&
+                    !string.IsNullOrEmpty(Regex.Match(wnd.siteTB.Text,
+                        InI.scriptsFile.Read("Scripts", "Name")).Groups["name"].Value.Replace("-", " ")))
+                    wnd.nameTB.Text = Regex.Match(wnd.siteTB.Text,
+                        InI.scriptsFile.Read("Scripts", "Name")).Groups["name"].Value.Replace("-", " ");
+                if (InI.scriptsFile.KeyExists("Scripts", "Version") && 
+                    !string.IsNullOrEmpty(Regex.Match(wnd.siteTB.Text,
+                        InI.scriptsFile.Read("Scripts", "Version")).Value.Replace("-", ".").TrimStart('.').TrimEnd('.')))
+                    wnd.versionTB.Text = Regex.Match(wnd.siteTB.Text,
+                        InI.scriptsFile.Read("Scripts", "Version")).Value.Replace("-", ".").TrimStart('.').TrimEnd('.');
+            }
         }
     }
 }

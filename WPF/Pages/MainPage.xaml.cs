@@ -11,6 +11,7 @@ namespace WPF
 {
     public partial class MainPage : Page
     {
+        #region Variables
         private TextBox tb;
         private Button btn;
         private Grid grd;
@@ -22,14 +23,13 @@ namespace WPF
         private int counter = 0;
         private bool doOnce = true;
         private bool newFilter = false;
-        //private Uri _uri;
-        //private WebBrowser _webBrowser;
         private bool mouseDownOnElement;
-        private ObservableCollection<string> filterList = new ObservableCollection<string>();
         private bool[] _panelStateChanged = new bool[0];
 
+        public ObservableCollection<string> filterList = new ObservableCollection<string>();
         public ObservableCollection<ListBoxItem> _itemCollection = new ObservableCollection<ListBoxItem>();
         public string[] currentFilter = new string[0];
+        #endregion
 
         public MainPage()
         {
@@ -43,11 +43,11 @@ namespace WPF
         private void InitializeFilterList()
         {
             filterList.Add(Properties.Resources.NoneSelected);
-            if ((Application.Current.MainWindow as MainWindow).filterFile != null)
+            if (InI.FiltersFileExist())
             {
-                for (int i = 1; i <= int.Parse((Application.Current.MainWindow as MainWindow).filterFile.Read("FilterCount", "Count")); i++)
+                foreach (var x in InI.filtersFile.ReadSections())
                 {
-                    filterList.Add((Application.Current.MainWindow as MainWindow).filterFile.Read("Filter - " + i, "Name"));
+                    filterList.Add(x);
                 }
             }
         }
@@ -67,9 +67,6 @@ namespace WPF
                 }
             }
 
-            //Style itemContainerStyle = new Style(typeof(ComboBoxItem));
-            //itemContainerStyle.Setters.Add(new EventSetter(ComboBoxItem.MouseLeftButtonDownEvent, new MouseButtonEventHandler(_CBI_MouseLeftButtonDown)));
-
             sortCB = new ComboBox() { Tag = counter, VerticalAlignment = VerticalAlignment.Center };
             sortCB.ItemContainerStyle = (Style)Resources["ComboBoxItemStyle"];
             btn = new Button() { Content = Properties.Resources.AddNewSort, Style = FindResource("StripButton") as Style };
@@ -77,23 +74,20 @@ namespace WPF
             grd = new Grid();
             grd.Children.Add(btn);
             grd.Children.Add(tb);
-            //ComboBoxItem _tbItem = (new ComboBoxItem() { Content = tb });
-            //btn.Click += (object ss, RoutedEventArgs ee) => { filterList.RemoveAt(filterList.Count - 1); filterList.Add(_tbItem); (_tbItem.Content as TextBox).Focus(); };
             btn.Click += (object ss, RoutedEventArgs ee) => {
-                (ss as Button).Visibility = Visibility.Collapsed;
-                (((ss as Button).Parent as Grid).Children[1] as TextBox).Visibility = Visibility.Visible;
-                (((ss as Button).Parent as Grid).Children[1] as TextBox).Focus();
+                btn.Visibility = Visibility.Collapsed;
+                tb.Visibility = Visibility.Visible;
+                tb.Text = "";
+                tb.Focus();
             };
             sortCB.ItemsSource = (new ObservableCollection<object>(filterList) { grd });
             sortCB.SelectedIndex = 0;
             sortCB.SelectionChanged += SortCB_SelectionChanged;
             sortCB.DropDownOpened += SortCB_DropDownOpened;
             sortCB.GotFocus += SortCB_GotFocus;
-            //sortCB.DropDownClosed += SortCB_DropDownClosed;
             sortB = new Button() { Content = "+", VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(5, 0, 0, 0) };
             sortB.Click += (ss, ee) => InitializeSortCB();
-            if ((Application.Current.MainWindow as MainWindow).filterFile == null ||
-                int.Parse((Application.Current.MainWindow as MainWindow).filterFile.Read("FilterCount", "Count")) == counter || counter > 4)
+            if(VisibleFiltersCB() < 2 || VisibleFiltersCB() == counter || counter > 4)
                 sortB.Visibility = Visibility.Collapsed;
             sortTB = new TextBlock() { Text = sortAddT, Tag = new object[2] { counter, false }, VerticalAlignment = VerticalAlignment.Center };
             sortTB.MouseLeftButtonDown += SortTB_MouseLeftButtonDown;
@@ -101,6 +95,18 @@ namespace WPF
             sortSP.Children.Add(sortCB);
             sortSP.Children.Add(sortB);
             sortAddT = "  &  ";
+        }
+
+        private int VisibleFiltersCB()
+        {
+            int _count = 0;
+            if (InI.FiltersFileExist())
+                for (int i = 1; i < filterList.Count; i++)
+                {
+                    if (InI.filtersFile.Read("Filter - " + i, "HideOnStartUp") == "False")
+                        _count++;
+                }
+            return _count;
         }
 
         private void SortCB_GotFocus(object sender, RoutedEventArgs e)
@@ -111,12 +117,6 @@ namespace WPF
                 searchTB.Text = null;
                 searchTB.IsEnabled = false;
             }
-        }
-
-        private void UpdateSortCB()
-        {
-            for (int i = 1; i < (sortSP.Children.Count - 1); i += 2)
-                ((ComboBox)sortSP.Children[i]).ItemsSource = (new ObservableCollection<object>(filterList) { grd });
         }
 
         private void SortTB_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -153,39 +153,31 @@ namespace WPF
             newFilter = false;
             if (((ComboBox)sender).SelectedIndex == ((ComboBox)sender).Items.Count - 1)
             {
-                if(!string.IsNullOrEmpty(tb.Text))
+                if (!string.IsNullOrEmpty(tb.Text))
                 {
-                bool found = false;
-                foreach (var x in ((ComboBox)sender).Items)
-                {
-                    if (x.ToString() == tb.Text)
+                    bool found = false;
+                    foreach (var x in filterList)
                     {
-                        found = true;
-                        CustomMessageBox.Show(Properties.Resources.Message_Add_FilterExist_Begin + "\"" + tb.Text + "\"" + Properties.Resources.Message_Add_FilterExist_End, Properties.Resources.Warning);
-                        ((ComboBox)sender).SelectedIndex = 0;
-                        break;
+                        if (x == tb.Text)
+                        {
+                            found = true;
+                            CustomMessageBox.Show(Properties.Resources.Message_Add_FilterExist_Begin + "\"" + tb.Text + "\"" + Properties.Resources.Message_Add_FilterExist_End, Properties.Resources.Warning);
+                            ((ComboBox)sender).SelectedIndex = 0;
+                            break;
+                        }
                     }
-                }
                     if (!found)
                     {
                         MessageBoxResult result = CustomMessageBox.Show(Properties.Resources.Message_Add_Filter_Begin + "\"" + tb.Text + "\"" + Properties.Resources.Message_Add_Filter_End, Properties.Resources.Message, MessageBoxButton.YesNo);
                         if (result == MessageBoxResult.Yes)
                         {
                             filterList.Add(tb.Text);
-                            UpdateSortCB();
-                            if ((Application.Current.MainWindow as MainWindow).filterFile == null)
-                            {
-                                using (File.Create("filters.ini"))
-                                    (Application.Current.MainWindow as MainWindow).filterFile = new INIHandler.INIFile("filters.ini");
-                            }
-                            (Application.Current.MainWindow as MainWindow).filterFile.Write("Filter - " + (filterList.Count - 1).ToString(), "Name", tb.Text);
-                            (Application.Current.MainWindow as MainWindow).filterFile.Write("Filter - " + (filterList.Count - 1).ToString(), "ExcludeUpdate", "False");
-                            (Application.Current.MainWindow as MainWindow).filterFile.DeleteSection("FilterCount");
-                            (Application.Current.MainWindow as MainWindow).filterFile.Write("FilterCount", "Count", (filterList.Count - 1).ToString());
+                            InI.filtersFile.Write(tb.Text, "ExcludeUpdate", "false");
+                            InI.filtersFile.Write(tb.Text, "HideOnStartUp", "false");
                             newFilter = true;
                             ((ComboBox)sender).SelectedIndex = filterList.Count - 1;
                         }
-                        if (!sortB.IsVisible && ((ComboBox)sender).Items.Count >= 4)
+                        if (!sortB.IsVisible && VisibleFiltersCB() > 1)
                             sortB.Visibility = Visibility.Visible;
                         else
                         {
@@ -216,31 +208,38 @@ namespace WPF
 
         private void FilterPanels()
         {
-            foreach (var x in mainLB.Items)
+            foreach (ListBoxItem x in mainLB.Items)
             {
                 int _cont = -1;
                 foreach (var y in currentFilter)
                 {
                     _cont++;
                     if ((bool)((sortSP.Children[_cont] as TextBlock).Tag as object[])[1] == false)
-                        if (y != null && !((StackPanel)(x as ListBoxItem).Content).Tag.ToString().Contains(y))
+                    {
+                        if (y != null && !((StackPanel)x.Content).Tag.ToString().Contains(y))
                         {
-                            (x as ListBoxItem).Visibility = Visibility.Collapsed;
+                            x.Visibility = Visibility.Collapsed;
                             break;
                         }
                         else
+                        if (x.IsEnabled)
                         {
-                            (x as ListBoxItem).Visibility = Visibility.Visible;
+                            x.Visibility = Visibility.Visible;
                         }
-                    else
-                        if (y != null && ((StackPanel)(x as ListBoxItem).Content).Tag.ToString().Contains(y) && (sortSP.Children[_cont + 1] as ComboBox).SelectedIndex > 0)
-                    {
-                        (x as ListBoxItem).Visibility = Visibility.Collapsed;
-                        break;
                     }
                     else
                     {
-                        (x as ListBoxItem).Visibility = Visibility.Visible;
+                        if (y != null && ((StackPanel)x.Content).Tag.ToString().Contains(y)
+                            && (sortSP.Children[_cont + 1] as ComboBox).SelectedIndex > 0)
+                        {
+                            x.Visibility = Visibility.Collapsed;
+                            break;
+                        }
+                        else
+                        if (x.IsEnabled)
+                        {
+                            x.Visibility = Visibility.Visible;
+                        }
                     }
                     _cont++;
                 }
@@ -261,44 +260,53 @@ namespace WPF
             Array.Resize(ref currentFilter, counter);
             FilterPanels();
         }
-        
+
         private void SortCB_DropDownOpened(object sender, EventArgs e)
         {
-            if((((ComboBox)sender).Items[((ComboBox)sender).Items.Count - 1] as Grid).Children[1].Visibility == Visibility.Visible)
+            if ((((ComboBox)sender).Items[((ComboBox)sender).Items.Count - 1] as Grid).Children[1].Visibility == Visibility.Visible)
             {
                 (((ComboBox)sender).Items[((ComboBox)sender).Items.Count - 1] as Grid).Children[0].Visibility = Visibility.Visible;
                 (((ComboBox)sender).Items[((ComboBox)sender).Items.Count - 1] as Grid).Children[1].Visibility = Visibility.Collapsed;
             }
-            var _list = new ObservableCollection<string>(filterList);
-            int y = 0;
+
+            var _list = new ObservableCollection<object>() { Properties.Resources.NoneSelected };
+            int y = -1;
+            if (InI.FiltersFileExist())
+                foreach (var x in filterList)
+                {
+                    y++;
+                    if (InI.filtersFile.Read(x, "HideOnStartUp") == "false")
+                        _list.Add(x);
+                }
+
+            _list.Add(grd);
+            y = 0;
+
             foreach (var x in currentFilter)
             {
                 y++;
                 if ((int)((ComboBox)sender).Tag != y)
                     _list.Remove(x);
             }
-            ((ComboBox)sender).ItemsSource = (new ObservableCollection<object>(_list) { grd });
+
+            ((ComboBox)sender).ItemsSource = _list;
         }
 
         private void _CBI_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if(e.ChangedButton == MouseButton.Middle && ((ComboBoxItem)sender).Content is string && ((ComboBoxItem)sender).Content.ToString() != Properties.Resources.NoneSelected)
+            if (e.ChangedButton == MouseButton.Middle && ((ComboBoxItem)sender).Content is string && ((ComboBoxItem)sender).Content.ToString() != Properties.Resources.NoneSelected)
             {
                 MessageBoxResult _result = CustomMessageBox.Show(Properties.Resources.Message_DeleteFilter_Begin + ((ComboBoxItem)sender).Content.ToString() + Properties.Resources.Message_DeleteFilter_End, Properties.Resources.Delete, MessageBoxButton.YesNo);
                 if (_result == MessageBoxResult.Yes)
                 {
-                    int _filterCounter = int.Parse((Application.Current.MainWindow as MainWindow).filterFile.Read("FilterCount", "Count"));
-                    for (int i = filterList.IndexOf(((ComboBoxItem)sender).DataContext.ToString()) + 1; i <= _filterCounter; i++)
+                    if (InI.FiltersFileExist())
                     {
-                        (Application.Current.MainWindow as MainWindow).filterFile.Write("Filter - " + (i - 1), "Name", (Application.Current.MainWindow as MainWindow).filterFile.Read("Filter - " + i, "Name"));
-                        (Application.Current.MainWindow as MainWindow).filterFile.Write("Filter - " + (i - 1), "ExcludeUpdate", (Application.Current.MainWindow as MainWindow).filterFile.Read("Filter - " + i, "ExcludeUpdate"));
+                        InI.filtersFile.DeleteSection(((ComboBoxItem)sender).Content.ToString());
                     }
                     filterList.Remove(((ComboBoxItem)sender).DataContext.ToString());
-                    UpdateSortCB();
-                    (Application.Current.MainWindow as MainWindow).filterFile.DeleteSection("Filter - " + _filterCounter);
-                    (Application.Current.MainWindow as MainWindow).filterFile.DeleteSection("FilterCount");
-                    (Application.Current.MainWindow as MainWindow).filterFile.Write("FilterCount", "Count", (_filterCounter - 1).ToString());
-                    if (sortB.IsVisible && (sortSP.Children[1] as ComboBox).Items.Count <= 4)
+                    if (counter > VisibleFiltersCB() && counter > 1)
+                        DeleteSortCB();
+                    if (sortB.IsVisible && (VisibleFiltersCB() < 2 || VisibleFiltersCB() == counter))
                         sortB.Visibility = Visibility.Collapsed;
                 }
             }
@@ -342,54 +350,6 @@ namespace WPF
                 }
             }
 
-            if (!string.IsNullOrEmpty(tb.Text))
-            {
-                newFilter = false;
-                bool found = false;
-                foreach (var x in ((ComboBox)sender).Items)
-                {
-                    if (x.ToString() == tb.Text)
-                    {
-                        found = true;
-                        CustomMessageBox.Show(Properties.Resources.Message_Add_FilterExist_Begin + "\"" + tb.Text + "\"" + Properties.Resources.Message_Add_FilterExist_End, Properties.Resources.Warning);
-                        ((ComboBox)sender).Items.RemoveAt(((ComboBox)sender).SelectedIndex);
-                        ((ComboBox)sender).SelectedIndex = 0;
-                        break;
-                    }
-                }
-                if (!found)
-                {
-                    MessageBoxResult result = CustomMessageBox.Show(Properties.Resources.Message_Add_Filter_Begin + "\"" + tb.Text + "\"" + Properties.Resources.Message_Add_Filter_End, Properties.Resources.Message, MessageBoxButton.YesNo);
-                    ((ComboBox)sender).Items.RemoveAt(((ComboBox)sender).Items.Count - 1);
-                    if (result == MessageBoxResult.Yes)
-                    {
-                        for (int i = 1; i < (sortSP.Children.Count - 1); i += 2)
-                        {
-                            ((ComboBox)sortSP.Children[i]).Items.Add(tb.Text);
-                        }
-                        if ((Application.Current.MainWindow as MainWindow).filterFile == null)
-                        {
-                            using (File.Create("filters.ini"))
-                                (Application.Current.MainWindow as MainWindow).filterFile = new INIHandler.INIFile("filters.ini");
-                        }
-                        (Application.Current.MainWindow as MainWindow).filterFile.Write("Filter - " + (((ComboBox)sender).Items.Count - 1).ToString(), "Name", tb.Text);
-                        (Application.Current.MainWindow as MainWindow).filterFile.Write("Filter - " + (((ComboBox)sender).Items.Count - 1).ToString(), "ExcludeUpdate", "False");
-                        (Application.Current.MainWindow as MainWindow).filterFile.DeleteSection("FilterCount");
-                        (Application.Current.MainWindow as MainWindow).filterFile.Write("FilterCount", "Count", (((ComboBox)sender).Items.Count - 1).ToString());
-                        newFilter = true;
-                        ((ComboBox)sender).SelectedIndex = ((ComboBox)sender).Items.Count - 1;
-                    }
-                    else
-                    {
-                        ((ComboBox)sender).SelectedIndex = 0;
-                    }
-                }
-            }
-            else
-            {
-                ((ComboBox)sender).Items.RemoveAt(((ComboBox)sender).Items.Count - 1);
-            }
-
             if (((ComboBox)sender).SelectedIndex == -1)
             {
                 ((ComboBox)sender).SelectedIndex = 0;
@@ -398,8 +358,6 @@ namespace WPF
 
         private void SearchTB_TextChanged(object sender, TextChangedEventArgs e)
         {
-            //if (string.IsNullOrWhiteSpace(searchTB.Text))
-            //    _panelStateChanged = new bool[0];
             Array.Resize(ref _panelStateChanged, mainLB.Items.Count);
             foreach (var x in mainLB.Items)
             {
@@ -407,29 +365,17 @@ namespace WPF
                 {
                     if ((x as ListBoxItem).IsVisible)
                     {
-                        _panelStateChanged[int.Parse((((StackPanel)(x as ListBoxItem).Content).Children[0] as Button).Tag.ToString()) - 1] = true;
+                        _panelStateChanged[mainLB.Items.IndexOf(x as ListBoxItem)] = true;
                         (x as ListBoxItem).Visibility = Visibility.Collapsed;
                     }
                 }
                 else
-                    if(_panelStateChanged[int.Parse((((StackPanel)(x as ListBoxItem).Content).Children[0] as Button).Tag.ToString()) - 1])
+                    if (_panelStateChanged[mainLB.Items.IndexOf(x as ListBoxItem)])
                 {
-                    _panelStateChanged[int.Parse((((StackPanel)(x as ListBoxItem).Content).Children[0] as Button).Tag.ToString()) - 1] = false;
+                    _panelStateChanged[mainLB.Items.IndexOf(x as ListBoxItem)] = false;
                     (x as ListBoxItem).Visibility = Visibility.Visible;
                 }
             }
-        }
-
-        private void SearchTB_LostFocus(object sender, RoutedEventArgs e)
-        {
-            /*
-            if (Keyboard.FocusedElement is ComboBox)
-            {
-                searchTB.Width = 0;
-                searchTB.Text = null;
-                searchTB.IsEnabled = false;
-            }
-            */
         }
 
         private void MainLB_PreviewMouseMove(object sender, MouseEventArgs e)
@@ -442,126 +388,20 @@ namespace WPF
                     mouseDownOnElement = false;
                     DragDrop.DoDragDrop(draggedItem, draggedItem, DragDropEffects.Move);
                 }
+                draggedItem = null;
             }
         }
 
         void MainLB_Drop(object sender, DragEventArgs e)
         {
-            var droppedData = e.Data.GetData(typeof(ListBoxItem)) as ListBoxItem;
-            var target = ((ListBoxItem)(sender)) as ListBoxItem;
+            var target = (((ListBoxItem)sender) as ListBoxItem).Content;
 
-            int removedIdx = mainLB.Items.IndexOf(droppedData);
-            int targetIdx = mainLB.Items.IndexOf(target);
+            ((ListBoxItem)sender).Content = (e.Data.GetData(typeof(ListBoxItem)) as ListBoxItem).Content;
+            (mainLB.Items.GetItemAt(mainLB.Items.IndexOf(e.Data.GetData(typeof(ListBoxItem)) as ListBoxItem)) as ListBoxItem).Content = target;
 
-            int _removedIdx = 0;
-            int _targetIdx = 0;
-            int inverseContor = 1;
-            int _cont = 0;
-            int _incriser = 0;
-            int _decreser = 0;
-
-            if (removedIdx < targetIdx)
-            {
-                if (targetIdx + 1 == _itemCollection.Count)
-                {
-                    _itemCollection.Add(new ListBoxItem());
-                    _itemCollection.Insert(targetIdx + 1, droppedData);
-                    _itemCollection.RemoveAt(removedIdx);
-                    _itemCollection.RemoveAt(targetIdx + 1);
-                }
-                else
-                {
-                    _itemCollection.Insert(targetIdx + 1, droppedData);
-                    _itemCollection.RemoveAt(removedIdx);
-                }
-                    
-
-                _removedIdx = removedIdx;
-                _targetIdx = targetIdx;
-                inverseContor = 1;
-                _cont = removedIdx + 2;
-                _incriser = 1;
-                _decreser = 0;
-            }
-            else
-            {
-                if (_itemCollection.Count > removedIdx)
-                {
-                    _itemCollection.Insert(targetIdx, droppedData);
-                    _itemCollection.RemoveAt(removedIdx + 1);
-
-                    _removedIdx = targetIdx;
-                    _targetIdx = removedIdx;
-                    inverseContor = -1;
-                    _cont = removedIdx + 1;
-                    _incriser = 0;
-                    _decreser = 1;
-                }
-            }
-            mainLB.Items.Refresh();
-            string[] _filderToCopy = new string[7];
-            _filderToCopy[0] = (Application.Current.MainWindow as MainWindow).pannelFile.Read("Panel - " + (removedIdx + 1), "Name");
-            _filderToCopy[1] = (Application.Current.MainWindow as MainWindow).pannelFile.Read("Panel - " + (removedIdx + 1), "Link");
-            _filderToCopy[2] = (Application.Current.MainWindow as MainWindow).pannelFile.Read("Panel - " + (removedIdx + 1), "Version");
-            _filderToCopy[3] = (Application.Current.MainWindow as MainWindow).pannelFile.Read("Panel - " + (removedIdx + 1), "Update");
-            _filderToCopy[4] = (Application.Current.MainWindow as MainWindow).pannelFile.Read("Panel - " + (removedIdx + 1), "Site");
-            _filderToCopy[5] = (Application.Current.MainWindow as MainWindow).pannelFile.Read("Panel - " + (removedIdx + 1), "Completed");
-            _filderToCopy[6] = (Application.Current.MainWindow as MainWindow).pannelFile.Read("Panel - " + (removedIdx + 1), "Tags");
-            if (!Directory.Exists(@"pictures"))
-            {
-                Directory.CreateDirectory(Directory.GetCurrentDirectory() + @"\pictures");
-            }
-            else
-            {
-                if (File.Exists(Directory.GetCurrentDirectory() +
-                    @"\pictures\IMG-" + (removedIdx + 1) + ".png"))
-                {
-                    File.Copy(Directory.GetCurrentDirectory() +
-                        @"\pictures\IMG-" + (removedIdx + 1) + ".png", Directory.GetCurrentDirectory() +
-                        @"\pictures\IMG-" + (removedIdx + 1) + "_.png");
-                    File.Delete(Directory.GetCurrentDirectory() +
-                        @"\pictures\IMG-" + (removedIdx + 1) + ".png");
-                }
-            }
-            for (int i = _removedIdx; i < _targetIdx; i++)
-            {
-                (Application.Current.MainWindow as MainWindow).pannelFile.Write("Panel - " + (_cont - _incriser), "Name", (Application.Current.MainWindow as MainWindow).pannelFile.Read("Panel - " + (_cont - _decreser), "Name"));
-                (Application.Current.MainWindow as MainWindow).pannelFile.Write("Panel - " + (_cont - _incriser), "Link", (Application.Current.MainWindow as MainWindow).pannelFile.Read("Panel - " + (_cont - _decreser), "Link"));
-                (Application.Current.MainWindow as MainWindow).pannelFile.Write("Panel - " + (_cont - _incriser), "Version", (Application.Current.MainWindow as MainWindow).pannelFile.Read("Panel - " + (_cont - _decreser), "Version"));
-                (Application.Current.MainWindow as MainWindow).pannelFile.Write("Panel - " + (_cont - _incriser), "Update", (Application.Current.MainWindow as MainWindow).pannelFile.Read("Panel - " + (_cont - _decreser), "Update"));
-                (Application.Current.MainWindow as MainWindow).pannelFile.Write("Panel - " + (_cont - _incriser), "Site", (Application.Current.MainWindow as MainWindow).pannelFile.Read("Panel - " + (_cont - _decreser), "Site"));
-                (Application.Current.MainWindow as MainWindow).pannelFile.Write("Panel - " + (_cont - _incriser), "Completed", (Application.Current.MainWindow as MainWindow).pannelFile.Read("Panel - " + (_cont - _decreser), "Completed"));
-                (Application.Current.MainWindow as MainWindow).pannelFile.Write("Panel - " + (_cont - _incriser), "Tags", (Application.Current.MainWindow as MainWindow).pannelFile.Read("Panel - " + (_cont - _decreser), "Tags"));
-                (((mainLB.Items[(_cont - _incriser) - 1] as ListBoxItem).Content as StackPanel).Children[0] as Button).Tag = (_cont - _decreser) - inverseContor;
-                if (File.Exists(Directory.GetCurrentDirectory() +
-                    @"\pictures\IMG-" + (_cont - _decreser) + ".png"))
-                {
-                    File.Copy(Directory.GetCurrentDirectory() +
-                        @"\pictures\IMG-" + (_cont - _decreser) + ".png", Directory.GetCurrentDirectory() +
-                        @"\pictures\IMG-" + (_cont - _incriser) + ".png");
-                    File.Delete(Directory.GetCurrentDirectory() +
-                        @"\pictures\IMG-" + (_cont - _decreser) + ".png");
-                }
-                _cont = _cont + inverseContor;
-            }
-            (Application.Current.MainWindow as MainWindow).pannelFile.Write("Panel - " + (targetIdx + 1), "Name", _filderToCopy[0]);
-            (Application.Current.MainWindow as MainWindow).pannelFile.Write("Panel - " + (targetIdx + 1), "Link", _filderToCopy[1]);
-            (Application.Current.MainWindow as MainWindow).pannelFile.Write("Panel - " + (targetIdx + 1), "Version", _filderToCopy[2]);
-            (Application.Current.MainWindow as MainWindow).pannelFile.Write("Panel - " + (targetIdx + 1), "Update", _filderToCopy[3]);
-            (Application.Current.MainWindow as MainWindow).pannelFile.Write("Panel - " + (targetIdx + 1), "Site", _filderToCopy[4]);
-            (Application.Current.MainWindow as MainWindow).pannelFile.Write("Panel - " + (targetIdx + 1), "Completed", _filderToCopy[5]);
-            (Application.Current.MainWindow as MainWindow).pannelFile.Write("Panel - " + (targetIdx + 1), "Tags", _filderToCopy[6]);
-            (((mainLB.Items[(_cont - _incriser) - 1] as ListBoxItem).Content as StackPanel).Children[0] as Button).Tag = (_cont - _decreser) - inverseContor;
-            if (File.Exists(Directory.GetCurrentDirectory() +
-                @"\pictures\IMG-" + (removedIdx + 1) + "_.png"))
-            {
-                File.Copy(Directory.GetCurrentDirectory() +
-                    @"\pictures\IMG-" + (removedIdx + 1) + "_.png", Directory.GetCurrentDirectory() +
-                    @"\pictures\IMG-" + (targetIdx + 1) + ".png");
-                File.Delete(Directory.GetCurrentDirectory() +
-                    @"\pictures\IMG-" + (removedIdx + 1) + "_.png");
-            }
-                _filderToCopy = null;
+            InI.panelsFile.InterchangeSections(
+                ((TextBlock)((StackPanel)((ListBoxItem)sender).Content).Children[1]).Text,
+                ((TextBlock)((StackPanel)target).Children[1]).Text);
         }
 
         private void MainLBItem_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)

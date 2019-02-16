@@ -80,6 +80,7 @@
       <DependentUpon>AddNewPanel.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\BitmapConversion.cs" />
+    <Compile Include="GlobalFunctions\InI.cs" />
     <Compile Include="Pages\GeneralSettingsPage.xaml.cs">
       <DependentUpon>GeneralSettingsPage.xaml</DependentUpon>
     </Compile>
@@ -103,10 +104,8 @@
     </Compile>
     <Compile Include="Settings\Languages.cs" />
     <Compile Include="Settings\Settings.cs" />
-    <Compile Include="Test.xaml.cs">
-      <DependentUpon>Test.xaml</DependentUpon>
-    </Compile>
     <Compile Include="ViewModels\AddNewPanelViewModel.cs" />
+    <Compile Include="ViewModels\CustomWindowViewModel.cs" />
     <Compile Include="ViewModels\GeneralSettingsPageViewModel.cs" />
     <Compile Include="ViewModels\SettingsPageViewModel.cs" />
     <Compile Include="ViewModels\MainPageViewModel.cs" />
@@ -193,7 +192,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Test.xaml">
+    <Page Include="Styles\Expander.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

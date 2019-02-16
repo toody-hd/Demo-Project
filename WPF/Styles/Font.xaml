@@ -20,6 +20,8 @@
     <system:String x:Key="FontAwesomePlusIcon">&#xf067;</system:String>
     <system:String x:Key="FontAwesomeLeftIcon">&#xf060;</system:String>
     <system:String x:Key="FontAwesomeSyncIcon">&#xf021;</system:String>
-
+    <system:String x:Key="FontAwesomeSaveIcon">&#xf0c7;</system:String>
+    <system:String x:Key="FontAwesomeMinusIcon">&#xf068;</system:String>
+    <system:String x:Key="FontAwesomeEditIcon">&#xf044;</system:String>
 
 </ResourceDictionary>

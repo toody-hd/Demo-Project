@@ -21,6 +21,7 @@ namespace WPF
 
         static CustomMessageBox _messageBox;
         static MessageBoxResult _result = MessageBoxResult.No;
+
         public static MessageBoxResult Show
         (string message, string title, MessageBoxType type)
         {
@@ -45,27 +46,32 @@ namespace WPF
                     return MessageBoxResult.No;
             }
         }
+
         public static MessageBoxResult Show(string message, MessageBoxType type)
         {
             return Show(message, string.Empty, type);
         }
+
         public static MessageBoxResult Show(string message)
         {
             return Show(message, string.Empty,
             MessageBoxButton.OK, MessageBoxImage.None);
         }
+
         public static MessageBoxResult Show
         (string message, string title)
         {
             return Show(message, title,
             MessageBoxButton.OK, MessageBoxImage.None);
         }
+
         public static MessageBoxResult Show
         (string message, string title, MessageBoxButton button)
         {
             return Show(message, title, button,
             MessageBoxImage.None);
         }
+
         public static MessageBoxResult Show
         (string message, string title,
         MessageBoxButton button, MessageBoxImage image)
@@ -77,6 +83,28 @@ namespace WPF
             _messageBox.ShowDialog();
             return _result;
         }
+
+        public static MessageBoxResult Show
+        (object obj, MessageBoxButton button, MessageBoxImage image)
+        {
+            _messageBox = new CustomMessageBox
+            { Object = { Content = obj } };
+            SetVisibilityOfButtons(button);
+            SetImageOfMessageBox(image);
+            _messageBox.ShowDialog();
+            return _result;
+        }
+
+        public static MessageBoxResult Show
+        (object obj)
+        {
+            _messageBox = new CustomMessageBox
+            { Object = { Content = obj , Visibility = Visibility.Visible }, Message = { Visibility = Visibility.Collapsed } };
+            SetVisibilityOfButtons(MessageBoxButton.OK);
+            _messageBox.ShowDialog();
+            return _result;
+        }
+
         private static void SetVisibilityOfButtons(MessageBoxButton button)
         {
             switch (button)
@@ -105,6 +133,7 @@ namespace WPF
                     break;
             }
         }
+
         private static void SetImageOfMessageBox(MessageBoxImage image)
         {
             switch (image)
@@ -126,6 +155,7 @@ namespace WPF
                     break;
             }
         }
+
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             if (sender == okBtn)
@@ -141,6 +171,7 @@ namespace WPF
             _messageBox.Close();
             _messageBox = null;
         }
+
         private void SetImage(string imageName)
         {
             string uri = string.Format("/Resources/images/{0}", imageName);

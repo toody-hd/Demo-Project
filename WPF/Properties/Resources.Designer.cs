@@ -88,20 +88,20 @@ namespace WPF.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Link.
-        /// </summary>
-        public static string Add_Link {
-            get {
-                return ResourceManager.GetString("Add_Link", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Name.
         /// </summary>
         public static string Add_Name {
             get {
                 return ResourceManager.GetString("Add_Name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Path.
+        /// </summary>
+        public static string Add_Path {
+            get {
+                return ResourceManager.GetString("Add_Path", resourceCulture);
             }
         }
         
@@ -542,6 +542,15 @@ namespace WPF.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Hide on startup: .
+        /// </summary>
+        public static string Settings_General_HideOnStartUp {
+            get {
+                return ResourceManager.GetString("Settings_General_HideOnStartUp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Language: .
         /// </summary>
         public static string Settings_General_Language {
@@ -601,6 +610,42 @@ namespace WPF.Properties {
         public static string Title {
             get {
                 return ResourceManager.GetString("Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Current version.
+        /// </summary>
+        public static string Update_Current_Version {
+            get {
+                return ResourceManager.GetString("Update_Current_Version", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to There are .
+        /// </summary>
+        public static string Update_Found_Begin {
+            get {
+                return ResourceManager.GetString("Update_Found_Begin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to  new updates..
+        /// </summary>
+        public static string Update_Found_End {
+            get {
+                return ResourceManager.GetString("Update_Found_End", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to New Version.
+        /// </summary>
+        public static string Update_New_Version {
+            get {
+                return ResourceManager.GetString("Update_New_Version", resourceCulture);
             }
         }
         

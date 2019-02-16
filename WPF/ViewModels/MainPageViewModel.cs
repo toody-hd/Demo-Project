@@ -8,33 +8,35 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
-using INIHandler;
 using System.Linq;
 using System.Windows.Threading;
+using System.Text.RegularExpressions;
 
 namespace WPF
 {
     public class MainPageViewModel
     {
-        private Page mPage;
-        private INIFile ini;
-        private INIFile ini2;
-        private bool isInI;
-        private int count = 0;
+        #region Variables
+        private MainPage mPage;
         private string[] updates = { };
         private Uri _uri;
         private WebBrowser _webBrowser;
         private bool navigating = true;
-        private string updateList;
-        private string tagId;
+        private int panelUpdatedIndex;
+        private string[] updateList = { };
+        private string[] versionList = { };
+        private string[] newVersionList = { };
+        private string panelName;
         private bool alreadyClicked;
         private int clickCounter;
         private bool longPress;
-        private bool doOnce;
+        //private bool doOnce;
+        private string[] _hideList = { };
+        #endregion
 
         public MainPageViewModel(Page page)
         {
-            mPage = page;
+            mPage = (MainPage)page;
 
             SettingsCommand = new RelayCommand(() => ChangePage(new SettingsPage()));
             LogOutCommand = new RelayCommand(() => ChangePage(new LoginPage()));
@@ -45,48 +47,96 @@ namespace WPF
             Initializer();
         }
 
+        #region ICommands
         public ICommand SettingsCommand { get; private set; }
         public ICommand LogOutCommand { get; private set; }
         public ICommand AddNewPanelCommand { get; private set; }
         public ICommand UpdateCommand { get; private set; }
         public ICommand SearchCommand { get; private set; }
+        #endregion
 
         private void Initializer()
         {
-            if (File.Exists(@"panels.ini"))
+            string[] _tagList = null;
+            bool _found = false;
+            Visibility _visibility = Visibility.Visible;
+            bool _isEnabled = true;
+
+            // Init _hideList
+            if (InI.FiltersFileExist())
             {
-                ini = new INIFile("panels.ini");
-                isInI = true;
-                if (ini.SectionExists("PanelCount") == true)
+                foreach (var x in InI.filtersFile.ReadSections())
                 {
-                    System.Drawing.Bitmap img;
-                    for (int i = 1; i <= int.Parse(ini.Read("PanelCount", "Count")); i++)
+                    if (InI.filtersFile.Read(x, "HideOnStartUp") == "true")
                     {
-                        if (File.Exists(Directory.GetCurrentDirectory() +
-                            @"\pictures\IMG-" + i + ".png"))
-                        {
-                            using (var bmpTemp = new System.Drawing.Bitmap(Directory.GetCurrentDirectory() +
-                                    @"\pictures\IMG-" + i + ".png"))
-                            {
-                                img = new System.Drawing.Bitmap(bmpTemp);
-                            }
-                        }
-                        else
-                            img = null;
-                        if (ini.Read("Panel - " + i, "Update") != "Unknown" && DateTime.Parse(ini.Read("Panel - " + i, "Update")) <= DateTime.Now.Date)
-                        {
-                            count++;
-                            Array.Resize(ref updates, count);
-                            updates[count - 1] = ini.Read("Panel - " + i, "Name");
-                        }
-                        NewPanel(i, ini.Read("Panel - " + i, "Name"), ini.Read("Panel - " + i, "Tags"), img);
+                        Array.Resize(ref _hideList, _hideList.Length + 1);
+                        _hideList[_hideList.Length - 1] = x;
                     }
                 }
-                else
-                    ini.Write("PanelCount", "Count", "0");
             }
-            else
-                isInI = false;
+
+            // Init panels
+            if (InI.PanelsFileExist() && InI.panelsFile.ReadSections() != null)
+            {
+                System.Drawing.Bitmap img;
+                foreach (var x in InI.panelsFile.ReadSections())
+                {
+                    if (File.Exists(Directory.GetCurrentDirectory() +
+                        @"\pictures\" + x.Replace(":","") + ".png"))
+                    {
+                        using (var bmpTemp = new System.Drawing.Bitmap(Directory.GetCurrentDirectory() +
+                                @"\pictures\" + x.Replace(":", "") + ".png"))
+                        {
+                            img = new System.Drawing.Bitmap(bmpTemp);
+                        }
+                    }
+                    else
+                        img = null;
+
+                    _tagList = InI.panelsFile.Read(x, "Tags").Split(';');
+
+                    if (InI.FiltersFileExist())
+                    {
+                        if (_hideList.Length < _tagList.Length)
+                            foreach (var y in _hideList)
+                            {
+                                foreach (var z in _tagList)
+                                {
+                                    if (y == z)
+                                    {
+                                        _found = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        else
+                            foreach (var y in _tagList)
+                            {
+                                foreach (var z in _hideList)
+                                {
+                                    if (y == z)
+                                    {
+                                        _found = true;
+                                        break;
+                                    }
+                                }
+                            }
+                    }
+
+                    if (_found)
+                    {
+                        _visibility = Visibility.Collapsed;
+                        _isEnabled = false;
+                    }
+                    else
+                    {
+                        _visibility = Visibility.Visible;
+                        _isEnabled = true;
+                    }
+                    _found = false;
+                    NewPanel(x, InI.panelsFile.Read(x, "Tags"), img, _visibility, _isEnabled);
+                }
+            }
         }
 
         private void ChangePage(object nav)
@@ -113,90 +163,89 @@ namespace WPF
             addF.ShowDialog();
             if ((addF.DataContext as AddNewPanelViewModel).ok && (addF.DataContext as AddNewPanelViewModel).image != null)
             {
-                string tempCounter;
-                if (isInI)
-                    NewPanel(int.Parse(ini.Read("PanelCount", "Count")) + 1, (addF.DataContext as AddNewPanelViewModel).name, string.Join(";", (addF.DataContext as AddNewPanelViewModel).tags), (addF.DataContext as AddNewPanelViewModel).image);
-                else
+                Visibility _visibility = Visibility.Visible;
+                bool _isEnabled = true;
+                if (InI.FiltersFileExist())
                 {
-                    NewPanel(1, (addF.DataContext as AddNewPanelViewModel).name, string.Join(";", (addF.DataContext as AddNewPanelViewModel).tags), (addF.DataContext as AddNewPanelViewModel).image);
-                    ini = new INIFile("panels.ini");
-                    ini.Write("PanelCount", "Count","0");
-                    isInI = true;
-                }
-                tempCounter = (int.Parse(ini.Read("PanelCount", "Count")) + 1).ToString();
-                ini.Write("Panel - " + tempCounter, "Name", (addF.DataContext as AddNewPanelViewModel).name);
-                ini.Write("Panel - " + tempCounter, "Link", (addF.DataContext as AddNewPanelViewModel).link);
-                ini.Write("Panel - " + tempCounter, "Version", (addF.DataContext as AddNewPanelViewModel).version);
-                if ((addF.DataContext as AddNewPanelViewModel).updateDate.ToShortDateString() != "1/1/0001")
-                    ini.Write("Panel - " + tempCounter, "Update", (addF.DataContext as AddNewPanelViewModel).updateDate.ToShortDateString());
-                else
-                    ini.Write("Panel - " + tempCounter, "Update", "Unknown");
-                ini.Write("Panel - " + tempCounter, "Site", (addF.DataContext as AddNewPanelViewModel).site);
-                ini.Write("Panel - " + tempCounter, "Completed", (addF.DataContext as AddNewPanelViewModel).completed.ToString());
-                ini.Write("Panel - " + tempCounter, "Tags", string.Join(";", (addF.DataContext as AddNewPanelViewModel).tags));
-                ini.DeleteSection("PanelCount");
-                ini.Write("PanelCount", "Count", tempCounter);
-                if ((addF.DataContext as AddNewPanelViewModel).image != null)
-                {
-                    if (!Directory.Exists(@"pictures"))
+                    _hideList = new string[] { };
+                    foreach (var x in InI.filtersFile.ReadSections())
                     {
-                        Directory.CreateDirectory(Directory.GetCurrentDirectory() + @"\pictures");
+                        if (InI.filtersFile.Read(x, "HideOnStartUp") == "true")
+                        {
+                            Array.Resize(ref _hideList, _hideList.Length + 1);
+                            _hideList[_hideList.Length - 1] = x;
+                        }
+                    }
+
+                    bool _found = false;
+                    if (_hideList.Length < (addF.DataContext as AddNewPanelViewModel).tags.Length)
+                        foreach (var x in _hideList)
+                        {
+                            foreach (var y in (addF.DataContext as AddNewPanelViewModel).tags)
+                            {
+                                if (x == y)
+                                {
+                                    _found = true;
+                                    break;
+                                }
+                            }
+                        }
+                    else
+                        foreach (var x in (addF.DataContext as AddNewPanelViewModel).tags)
+                        {
+                            foreach (var y in _hideList)
+                            {
+                                if (x == y)
+                                {
+                                    _found = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                    if (_found)
+                    {
+                        _visibility = Visibility.Collapsed;
+                        _isEnabled = false;
                     }
                     else
                     {
-                        if (File.Exists(Directory.GetCurrentDirectory() +
-                            @"\pictures\IMG-" + tempCounter + ".png"))
-                        {
-                            File.Delete(Directory.GetCurrentDirectory() +
-                            @"\pictures\IMG-" + tempCounter + ".png");
-                        }
+                        _visibility = Visibility.Visible;
+                        _isEnabled = true;
                     }
-                    (addF.DataContext as AddNewPanelViewModel).image.Save(Directory.GetCurrentDirectory() + @"\pictures\IMG-" + tempCounter + ".png", ImageFormat.Png);
+                }
+                NewPanel((addF.DataContext as AddNewPanelViewModel).name, string.Join(";", (addF.DataContext as AddNewPanelViewModel).tags), (addF.DataContext as AddNewPanelViewModel).image, _visibility, _isEnabled);
+                //_counter = (int.Parse(InI.panelsFile.Read("PanelCount", "Count")) + 1).ToString();
+                InI.panelsFile.Write((addF.DataContext as AddNewPanelViewModel).name, "Path", (addF.DataContext as AddNewPanelViewModel).path);
+                InI.panelsFile.Write((addF.DataContext as AddNewPanelViewModel).name, "Version", (addF.DataContext as AddNewPanelViewModel).version);
+                if ((addF.DataContext as AddNewPanelViewModel).updateDate.ToShortDateString() != "1/1/0001")
+                    InI.panelsFile.Write((addF.DataContext as AddNewPanelViewModel).name, "Update", (addF.DataContext as AddNewPanelViewModel).updateDate.ToShortDateString());
+                else
+                    InI.panelsFile.Write((addF.DataContext as AddNewPanelViewModel).name, "Update", "Unknown");
+                InI.panelsFile.Write((addF.DataContext as AddNewPanelViewModel).name, "Site", (addF.DataContext as AddNewPanelViewModel).site);
+                //InI.panelsFile.Write((addF.DataContext as AddNewPanelViewModel).name, "Completed", (addF.DataContext as AddNewPanelViewModel).completed.ToString());
+                InI.panelsFile.Write((addF.DataContext as AddNewPanelViewModel).name, "Tags", string.Join(";", (addF.DataContext as AddNewPanelViewModel).tags));
+                if ((addF.DataContext as AddNewPanelViewModel).image != null)
+                {
+                    CreateNewImage(null, 
+                        (addF.DataContext as AddNewPanelViewModel).name, 
+                        (addF.DataContext as AddNewPanelViewModel).image);
                 }
             }
         }
 
-        private void NewPanel(int count, string name, string tags, System.Drawing.Bitmap imageS)
+        private void NewPanel(string name, string tags, System.Drawing.Bitmap imageS, Visibility visibility, bool isEnabled)
         {
             var spTemp = new StackPanel() { Tag = tags, Width = 140, Height = 110 };
-            var bTemp = new Button() { Tag = count.ToString(), Width = 140, Height = 95, Content = new Image() { Width = 160, Height = 90, Source = BitmapConversion.BitmapToBitmapSource(imageS) } };
-            bTemp.MouseEnter += BTemp_MouseEnter;
-            bTemp.MouseLeave += BTemp_MouseLeave;
+            var bTemp = new Button() { Tag = name, Width = 140, Height = 95, Content = new Image() { Width = 160, Height = 90, Source = BitmapConversion.BitmapToBitmapSource(imageS) } };
             bTemp.PreviewMouseLeftButtonUp += BTemp_PreviewMouseLeftButtonUp;
             bTemp.MouseRightButtonUp += BTemp_MouseRightButtonUp;
             bTemp.PreviewMouseUp += BTemp_PreviewMouseUp;
-            //bTemp.PreviewMouseLeftButtonDown += BTemp_PreviewMouseLeftButtonDown;
-            //spTemp.MouseMove += SpTemp_MouseMove;
             spTemp.Children.Add(bTemp);
             spTemp.Children.Add(new TextBlock() { Text = name, HorizontalAlignment = HorizontalAlignment.Center });
-            (mPage as MainPage)._itemCollection.Add(new ListBoxItem() { Content = spTemp });
+            mPage._itemCollection.Add(new ListBoxItem() { Content = spTemp, Visibility = visibility, IsEnabled = isEnabled });
         }
-
-        private void BTemp_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            if (!doOnce)
-            {
-                doOnce = true;
-                var backgroundWorker = new BackgroundWorker();
-
-                backgroundWorker.DoWork += (ss, ee) =>
-                {
-                    Thread.Sleep(300);
-                };
-
-                backgroundWorker.RunWorkerCompleted += (ss, ee) =>
-                {
-                    if (e.ButtonState == MouseButtonState.Pressed)
-                    {
-                        Mouse.OverrideCursor = Cursors.Hand;
-                        longPress = true;
-                    }
-                };
-
-                backgroundWorker.RunWorkerAsync();
-            }
-        }
-
+        
         private void BTemp_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             clickCounter++;
@@ -208,17 +257,16 @@ namespace WPF
                 backgroundWorker.DoWork += (ss, ee) =>
                 {
                     Thread.Sleep(200);
-                    //Thread.Sleep(System.Windows.Forms.SystemInformation.DoubleClickTime);
                 };
 
                 backgroundWorker.RunWorkerCompleted += (ss, ee) =>
                 {
                     if (clickCounter == 2)
-                        Process.Start(@"chrome.exe", "--incognito " + ini.Read("Panel - " + (sender as Button).Tag, "Site") + "?VERSION=" + ini.Read("Panel - " + (sender as Button).Tag, "Version"));
+                        Process.Start(@"chrome.exe", "--incognito " + InI.panelsFile.Read((sender as Button).Tag.ToString(), "Site") + "?VERSION=" + InI.panelsFile.Read((sender as Button).Tag.ToString(), "Version"));
                     else
                     {
                         bool execute = true;
-                        if (ini.Read("Panel - " + ((Button)sender).Tag, "Completed") == "True")
+                        if (InI.panelsFile.Read(((Button)sender).Tag.ToString(), "Completed") == "True")
                         {
                             MessageBoxResult result = CustomMessageBox.Show("\"" + ((((Button)sender).Parent as StackPanel).Children[1] as TextBlock).Text + "\"" + Properties.Resources.Message_Completed_Begin + "\n" + Properties.Resources.Message_Completed_End, Properties.Resources.Completed, MessageBoxButton.YesNo);
                             if (result == MessageBoxResult.No)
@@ -228,16 +276,11 @@ namespace WPF
                         }
                         if (execute)
                         {
-                            string path = ini.Read("Panel - " + ((Button)sender).Tag, "Link");
+                            string path = InI.panelsFile.Read(((Button)sender).Tag.ToString(), "Path");
                             try
                             {
                                 Process process = Process.Start(path);
                                 ((MainWindow)Application.Current.MainWindow).WindowState = WindowState.Minimized;
-                                //Process process = new Process();
-                                //process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-                                //process.StartInfo.FileName = "cmd.exe";
-                                //process.StartInfo.Arguments = "'/C start /w " + path;
-                                //process.Start();
                                 process.WaitForExit();
                                 ((MainWindow)Application.Current.MainWindow).WindowState = WindowState.Normal;
                                 ((MainWindow)Application.Current.MainWindow).Activate();
@@ -261,53 +304,61 @@ namespace WPF
         private void BTemp_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
         {
             AddNewPanel addF = new AddNewPanel() { Owner = (MainWindow)Application.Current.MainWindow };
-            (addF.DataContext as AddNewPanelViewModel).name = ini.Read("Panel - " + ((Button)sender).Tag, "Name");
-            (addF.DataContext as AddNewPanelViewModel).link = ini.Read("Panel - " + ((Button)sender).Tag, "Link");
-            (addF.DataContext as AddNewPanelViewModel).version = ini.Read("Panel - " + ((Button)sender).Tag, "Version");
-            if (ini.Read("Panel - " + ((Button)sender).Tag, "Update") != "Unknown")
-                (addF.DataContext as AddNewPanelViewModel).updateDate = DateTime.Parse(ini.Read("Panel - " + ((Button)sender).Tag, "Update"));
-            (addF.DataContext as AddNewPanelViewModel).site = ini.Read("Panel - " + ((Button)sender).Tag, "Site");
-            (addF.DataContext as AddNewPanelViewModel).tags = (ini.Read("Panel - " + ((Button)sender).Tag, "Tags")).Split(new string[] { ";"}, StringSplitOptions.None);
-            (addF.DataContext as AddNewPanelViewModel).completed = bool.Parse(ini.Read("Panel - " + ((Button)sender).Tag, "Completed"));
+            (addF.DataContext as AddNewPanelViewModel).name = ((Button)sender).Tag.ToString();
+            (addF.DataContext as AddNewPanelViewModel).path = InI.panelsFile.Read(((Button)sender).Tag.ToString(), "Path");
+            (addF.DataContext as AddNewPanelViewModel).version = InI.panelsFile.Read(((Button)sender).Tag.ToString(), "Version");
+            if (InI.panelsFile.Read(((Button)sender).Tag.ToString(), "Update") != "Unknown")
+                (addF.DataContext as AddNewPanelViewModel).updateDate = DateTime.Parse(InI.panelsFile.Read(((Button)sender).Tag.ToString(), "Update"));
+            (addF.DataContext as AddNewPanelViewModel).site = InI.panelsFile.Read(((Button)sender).Tag.ToString(), "Site");
+            (addF.DataContext as AddNewPanelViewModel).tags = (InI.panelsFile.Read(((Button)sender).Tag.ToString(), "Tags")).Split(new string[] { ";" }, StringSplitOptions.None);
+            //(addF.DataContext as AddNewPanelViewModel).completed = bool.Parse(InI.panelsFile.Read(((Button)sender).Tag.ToString(), "Completed"));
             (addF.DataContext as AddNewPanelViewModel).imageSource = (((Button)sender).Content as Image).Source;
             (addF.DataContext as AddNewPanelViewModel).EditMode();
             addF.ShowDialog();
             if ((addF.DataContext as AddNewPanelViewModel).ok)
             {
-                ini.Write("Panel - " + ((Button)sender).Tag, "Name", (addF.DataContext as AddNewPanelViewModel).name);
-                ini.Write("Panel - " + ((Button)sender).Tag, "Link", (addF.DataContext as AddNewPanelViewModel).link);
-                ini.Write("Panel - " + ((Button)sender).Tag, "Version", (addF.DataContext as AddNewPanelViewModel).version);
-                if ((addF.DataContext as AddNewPanelViewModel).updateDate.ToShortDateString() != "1/1/0001")
-                    ini.Write("Panel - " + ((Button)sender).Tag, "Update", (addF.DataContext as AddNewPanelViewModel).updateDate.ToShortDateString());
-                else
-                    ini.Write("Panel - " + ((Button)sender).Tag, "Update", "Unknown");
-                ini.Write("Panel - " + ((Button)sender).Tag, "Site", (addF.DataContext as AddNewPanelViewModel).site);
-                ini.Write("Panel - " + ((Button)sender).Tag, "Completed", (addF.DataContext as AddNewPanelViewModel).completed.ToString());
-                ini.Write("Panel - " + ((Button)sender).Tag, "Tags", string.Join(";", (addF.DataContext as AddNewPanelViewModel).tags));
-
-                if ((addF.DataContext as AddNewPanelViewModel).image != null)
+                if (((Button)sender).Tag.ToString() != (addF.DataContext as AddNewPanelViewModel).name)
                 {
-                    if (!Directory.Exists(@"pictures"))
+                    InI.panelsFile.DeleteSection(((Button)sender).Tag.ToString());
+                    if ((addF.DataContext as AddNewPanelViewModel).image != null)
                     {
-                        Directory.CreateDirectory(Directory.GetCurrentDirectory() + @"\pictures");
+                        CreateNewImage(((Button)sender).Tag.ToString(), 
+                            (addF.DataContext as AddNewPanelViewModel).name, 
+                            (addF.DataContext as AddNewPanelViewModel).image);
                     }
                     else
                     {
-                        if (File.Exists(Directory.GetCurrentDirectory() +
-                            @"\pictures\IMG-" + ((Button)sender).Tag + ".png"))
-                        {
-                            File.Delete(Directory.GetCurrentDirectory() +
-                            @"\pictures\IMG-" + ((Button)sender).Tag + ".png");
-                        }
+                        CreateNewImage(((Button)sender).Tag.ToString(), 
+                            (addF.DataContext as AddNewPanelViewModel).name, 
+                            null);
                     }
-
-                    (addF.DataContext as AddNewPanelViewModel).image.Save(Directory.GetCurrentDirectory() + @"\pictures\IMG-" + ((Button)sender).Tag + ".png", ImageFormat.Png);
                 }
+                else
+                {
+                    if ((addF.DataContext as AddNewPanelViewModel).image != null)
+                    {
+                        CreateNewImage(null,
+                            (addF.DataContext as AddNewPanelViewModel).name,
+                            (addF.DataContext as AddNewPanelViewModel).image);
+                    }
+                }
+
+                ((Button)sender).Tag = (addF.DataContext as AddNewPanelViewModel).name;
+                InI.panelsFile.Write(((Button)sender).Tag.ToString(), "Path", (addF.DataContext as AddNewPanelViewModel).path);
+                InI.panelsFile.Write(((Button)sender).Tag.ToString(), "Version", (addF.DataContext as AddNewPanelViewModel).version);
+                if ((addF.DataContext as AddNewPanelViewModel).updateDate.ToShortDateString() != "1/1/0001")
+                    InI.panelsFile.Write(((Button)sender).Tag.ToString(), "Update", (addF.DataContext as AddNewPanelViewModel).updateDate.ToShortDateString());
+                else
+                    InI.panelsFile.Write(((Button)sender).Tag.ToString(), "Update", "Unknown");
+                InI.panelsFile.Write(((Button)sender).Tag.ToString(), "Site", (addF.DataContext as AddNewPanelViewModel).site);
+                //InI.panelsFile.Write(((Button)sender).Tag.ToString(), "Completed", (addF.DataContext as AddNewPanelViewModel).completed.ToString());
+                InI.panelsFile.Write(((Button)sender).Tag.ToString(), "Tags", string.Join(";", (addF.DataContext as AddNewPanelViewModel).tags));
+
                 (((Button)sender).Content as Image).Source = (addF.DataContext as AddNewPanelViewModel).imageSource;
                 ((((Button)sender).Parent as StackPanel).Children[1] as TextBlock).Text = (addF.DataContext as AddNewPanelViewModel).name;
                 (((Button)sender).Parent as StackPanel).Tag = string.Join(";", (addF.DataContext as AddNewPanelViewModel).tags);
                 ((Button)sender).Content = new Image() { Width = 160, Height = 90, Source = (addF as AddNewPanel).imagePB.Source };
-                foreach(var x in (mPage as MainPage).currentFilter)
+                foreach(var x in mPage.currentFilter)
                 {
                     if (x != null && !string.Join(";", (addF.DataContext as AddNewPanelViewModel).tags).Contains(x))
                     {
@@ -318,6 +369,34 @@ namespace WPF
             }
         }
 
+        private void CreateNewImage(string source,string destination, System.Drawing.Bitmap image)
+        {
+            if (!Directory.Exists(@"pictures"))
+            {
+                Directory.CreateDirectory(Directory.GetCurrentDirectory() + @"\pictures");
+            }
+            else
+            {
+                if (File.Exists(Directory.GetCurrentDirectory() +
+                    @"\pictures\" + destination.Replace(":", "") + ".png"))
+                {
+                    File.Delete(Directory.GetCurrentDirectory() +
+                        @"\pictures\" + destination.Replace(":", "") + ".png");
+                }
+
+                if (!string.IsNullOrWhiteSpace(source))
+                {
+                    File.Move(Directory.GetCurrentDirectory() +
+                        @"\pictures\" + source.Replace(":", "") + ".png",
+                    Directory.GetCurrentDirectory() +
+                        @"\pictures\" + destination.Replace(":", "") + ".png");
+                }
+            }
+
+            if(image != null)
+                image.Save(Directory.GetCurrentDirectory() + @"\pictures\" + destination + ".png", ImageFormat.Png);
+        }
+
         private void BTemp_PreviewMouseUp(object sender, MouseButtonEventArgs e)
         {
             if (e.ChangedButton == MouseButton.Middle)
@@ -325,46 +404,17 @@ namespace WPF
                 MessageBoxResult result = CustomMessageBox.Show(Properties.Resources.Message_Delete_Item_Begin + "\"" + ((((Button)sender).Parent as StackPanel).Children[1] as TextBlock).Text + "\"" + Properties.Resources.Message_Delete_Item_End, Properties.Resources.Delete, MessageBoxButton.YesNo);
                 if (result == MessageBoxResult.Yes)
                 {
-                    (mPage as MainPage)._itemCollection.Remove((((Button)sender).Parent as StackPanel).Parent as ListBoxItem);
-                    if (!Directory.Exists(@"pictures"))
+                    mPage._itemCollection.Remove((((Button)sender).Parent as StackPanel).Parent as ListBoxItem);
+                    if (Directory.Exists(@"pictures") &&File.Exists(Directory.GetCurrentDirectory() +
+                        @"\pictures\" + ((Button)sender).Tag.ToString() + ".png"))
                     {
-                        Directory.CreateDirectory(Directory.GetCurrentDirectory() + @"\pictures");
+                        File.Delete(Directory.GetCurrentDirectory() +
+                        @"\pictures\" + ((Button)sender).Tag.ToString() + ".png");
                     }
-                    else
-                    {
-                        if (File.Exists(Directory.GetCurrentDirectory() +
-                            @"\pictures\IMG-" + ((Button)sender).Tag + ".png"))
-                        {
-                            File.Delete(Directory.GetCurrentDirectory() +
-                            @"\pictures\IMG-" + ((Button)sender).Tag + ".png");
-                        }
-                    }
-                    for (int i = int.Parse(((Button)sender).Tag.ToString()); i < int.Parse(ini.Read("PanelCount", "Count")); i++)
-                    {
-                        ini.Write("Panel - " + i, "Name", ini.Read("Panel - " + (i + 1), "Name"));
-                        ini.Write("Panel - " + i, "Link", ini.Read("Panel - " + (i + 1), "Link"));
-                        ini.Write("Panel - " + i, "Version", ini.Read("Panel - " + (i + 1), "Version"));
-                        ini.Write("Panel - " + i, "Update", ini.Read("Panel - " + (i + 1), "Update"));
-                        ini.Write("Panel - " + i, "Site", ini.Read("Panel - " + (i + 1), "Site"));
-                        ini.Write("Panel - " + i, "Completed", ini.Read("Panel - " + (i + 1), "Completed"));
-                        if (File.Exists(Directory.GetCurrentDirectory() + @"\pictures\IMG-" + (i + 1) + ".png"))
-                            File.Move(Directory.GetCurrentDirectory() + @"\pictures\IMG-" + (i + 1) + ".png", Directory.GetCurrentDirectory() + @"\pictures\IMG-" + i + ".png");
-                    }
-                    ini.DeleteSection("Panel - " + ini.Read("PanelCount", "Count"));
-                    ini.Write("PanelCount", "Count", (int.Parse(ini.Read("PanelCount", "Count")) - 1).ToString());
+                    if (InI.PanelsFileExist())
+                        InI.panelsFile.DeleteSection(((Button)sender).Tag.ToString());
                 }
             }
-        }
-
-        private void BTemp_MouseEnter(object sender, MouseEventArgs e)
-        {
-            //var sndr = (Button)sender;
-           // var prnt = sndr.Parent as StackPanel;
-        }
-
-        private void BTemp_MouseLeave(object sender, MouseEventArgs e)
-        {
-
         }
 
         private void Update()
@@ -372,64 +422,115 @@ namespace WPF
             ((MainWindow)Application.Current.MainWindow).oL.Visibility = Visibility.Visible;
             ((MainWindow)Application.Current.MainWindow).oLText.Text = Properties.Resources.Message_Updating;
 
-            if (File.Exists(@"panels.ini"))
+            if (InI.PanelsFileExist())
             {
-                ini = new INIFile("panels.ini");
                 _webBrowser = new WebBrowser();
                 _webBrowser.Navigated += _webBrowser_Navigated;
+                var _excludeList = new string[] { };
+
+                if (InI.FiltersFileExist())
+                {
+                    foreach (var x in InI.filtersFile.ReadSections())
+                    {
+                        if (InI.filtersFile.Read(x, "ExcludeUpdate") == "true")
+                        {
+                            Array.Resize(ref _excludeList, _excludeList.Length + 1);
+                            _excludeList[_excludeList.Length - 1] = x;
+                        }
+                    }
+                }
 
                 foreach (var x in (mPage as MainPage)._itemCollection.OfType<ListBoxItem>())
                 {
-                    if (ini.SectionExists("Panel - " + ((x.Content as StackPanel).Children[0] as Button).Tag.ToString()))
+                    if (InI.panelsFile.SectionExists(
+                        ((x.Content as StackPanel).Children[0] as Button).Tag.ToString()))
                     {
-                        if (Uri.IsWellFormedUriString(ini.Read("Panel - " + ((x.Content as StackPanel).Children[0] as Button).Tag.ToString(), "Site"), UriKind.Absolute))
+                        if(!_excludeList.Intersect(
+                            InI.panelsFile.Read(
+                                ((x.Content as StackPanel).Children[0] as Button).Tag.ToString(), "Tags")
+                                .Split(';')).Any() &&
+                            Uri.IsWellFormedUriString(
+                                 InI.panelsFile.Read(
+                                 ((x.Content as StackPanel).Children[0] as Button).Tag.ToString(), "Site"), 
+                                 UriKind.Absolute))
                         {
-                            var _found = false;
-
-                            if (Settings.excUpd.Length == 0 && File.Exists(@"filters.ini"))
+                            panelName = ((x.Content as StackPanel).Children[0] as Button).Tag.ToString();
+                            panelUpdatedIndex = mPage.mainLB.Items.IndexOf(x);
+                            navigating = true;
+                            _uri = new Uri(InI.panelsFile.Read(
+                                ((x.Content as StackPanel).Children[0] as Button).Tag.ToString(), "Site"));
+                            _webBrowser.Navigate(_uri);
+                            while (navigating)
                             {
-                                var _ini = new INIFile("filters.ini");
-                                for (int i = 1; i <= int.Parse(_ini.Read("FilterCount", "Count")); i++)
-                                {
-                                    if (_ini.KeyExists("Filter - " + i, "ExcludeUpdate") && _ini.Read("Filter - " + i, "ExcludeUpdate") == "True")
-                                    {
-                                        Array.Resize(ref Settings.excUpd, Settings.excUpd.Length + 1);
-                                        Settings.excUpd[Settings.excUpd.Length - 1] = _ini.Read("Filter - " + i, "Name");
-                                    }
-                                }
-                            }
-
-                            foreach (var y in Settings.excUpd)
-                            {
-                                if (("_" + ini.Read("Panel - " + ((x.Content as StackPanel).Children[0] as Button).Tag.ToString(), "Tags") + "_").Replace(";", "_").Contains("_" + y + "_"))
-                                {
-                                    _found = true;
-                                    break;
-                                }
-                            }
-
-                            if (!_found)
-                            {
-                                tagId = ((x.Content as StackPanel).Children[0] as Button).Tag.ToString();
-                                navigating = true;
-                                _uri = new Uri(ini.Read("Panel - " + ((x.Content as StackPanel).Children[0] as Button).Tag.ToString(), "Site"));
-                                _webBrowser.Navigate(_uri);
-                                while (navigating)
-                                {
-                                    Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
-                                }
+                                Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
                             }
                         }
                     }
                 }
+                _excludeList = null;
                 _webBrowser = null;
 
                 ((MainWindow)Application.Current.MainWindow).oLText.Text = "";
-                if (updateList != null)
-                    CustomMessageBox.Show(updateList.Substring(0, updateList.Length - 1), Properties.Resources.Warning);
+
+                #region Creating the expander
+                var _nSP = new StackPanel();
+                _nSP.Children.Add(new TextBlock
+                {
+                    Text = Properties.Resources.Add_Name,
+                    TextDecorations = TextDecorations.Underline,
+                    Margin = new Thickness(0, 0, 20, 0)
+                });
+                _nSP.Children.Add(new TextBlock
+                {
+                    Text = string.Join("\n", updateList),
+                    Margin = new Thickness(0, 0, 20, 0)
+                });
+
+                var _vSP = new StackPanel();
+                _vSP.Children.Add(new TextBlock
+                {
+                    Text = Properties.Resources.Update_Current_Version,
+                    TextDecorations = TextDecorations.Underline,
+                    Margin = new Thickness(0, 0, 20, 0)
+                });
+                _vSP.Children.Add(new TextBlock
+                {
+                    Text = string.Join("\n", versionList),
+                    Margin = new Thickness(0, 0, 20, 0)
+                });
+
+                var _nvSP = new StackPanel();
+                _nvSP.Children.Add(new TextBlock
+                {
+                    Text = Properties.Resources.Update_New_Version,
+                    TextDecorations = TextDecorations.Underline,
+                    Margin = new Thickness(0, 0, 0, 0)
+                });
+                _nvSP.Children.Add(new TextBlock
+                {
+                    Text = string.Join("\n", newVersionList),
+                    Margin = new Thickness(0, 0, 0, 0)
+                });
+
+                var _newSP = new StackPanel() { Orientation = Orientation.Horizontal };
+                _newSP.Children.Add(_nSP);
+                _newSP.Children.Add(_vSP);
+                _newSP.Children.Add(_nvSP);
+
+                var _expander = new Expander
+                { Content = _newSP,
+                  Header = Properties.Resources.Update_Found_Begin + updateList.Length + Properties.Resources.Update_Found_End,
+                  Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Colors.Red)
+                };
+                #endregion
+
+                if (updateList.Length > 0)
+                    CustomMessageBox.Show(_expander);
                 else
                     CustomMessageBox.Show(Properties.Resources.Message_NoUpdates, Properties.Resources.Warning);
-                updateList = null;
+                updateList = new string[] { };
+                versionList = new string[] { };
+                newVersionList = new string[] { };
                 ((MainWindow)Application.Current.MainWindow).oL.Visibility = Visibility.Collapsed;
             }
         }
@@ -437,58 +538,53 @@ namespace WPF
         private void _webBrowser_Navigated(object sender, System.Windows.Navigation.NavigationEventArgs e)
         {
             navigating = false;
-            bool _found = false;
-            if (_uri != _webBrowser.Source && File.Exists(@"panels.ini"))
+            if (_uri != _webBrowser.Source && InI.PanelsFileExist())
             {
-                if (File.Exists(@"filters.ini"))
+                if (InI.FiltersFileExist() && !InI.filtersFile.SectionExists("Update"))
                 {
-                    ini2 = new INIFile("filters.ini");
-                    for (int i = 1; i <= int.Parse(ini2.Read("FilterCount", "Count")); i++)
-                    {
-                        if (ini2.Read("Filter - " + i, "Name") == "Update")
-                        {
-                            _found = true;
-                            break;
-                        }
-                    }
-                    if (!_found)
-                    {
-                        ini2.Write("Filter - " + (int.Parse(ini2.Read("FilterCount", "Count")) + 1), "Name", "Update");
-                        int _filterCount = int.Parse(ini2.Read("FilterCount", "Count")) + 1;
-                        ini2.DeleteSection("FilterCount");
-                        ini2.Write("FilterCount", "Count", _filterCount.ToString());
-                    }
-                }
-                updateList += _webBrowser.Source + "\n";
-                if (!ini.Read("Panel - " + tagId, "Tags").Contains("Update"))
-                {
-                    if (!string.IsNullOrWhiteSpace(ini.Read("Panel - " + tagId, "Tags")))
-                        ini.Write("Panel - " + tagId, "Tags", ini.Read("Panel - " + tagId, "Tags") + ";Update");
-                    else
-                        ini.Write("Panel - " + tagId, "Tags", ini.Read("Panel - " + tagId, "Tags") + "Update");
+                    InI.filtersFile.Write("Update", "ExcludeUpdate", "true");
+                    InI.filtersFile.Write("Update", "HideOnStartUp", "false");
+                    (mPage as MainPage).filterList.Add("Update");
                 }
 
-                if(!(((StackPanel)((mPage as MainPage).mainLB.Items[int.Parse(tagId) - 1] as ListBoxItem).Content).Tag).ToString().Contains("Update"))
-                    if (!string.IsNullOrWhiteSpace((((StackPanel)((mPage as MainPage).mainLB.Items[1] as ListBoxItem).Content).Tag).ToString()))
-                        ((StackPanel)((mPage as MainPage).mainLB.Items[int.Parse(tagId) - 1] as ListBoxItem).Content).Tag += ";Update";
+                Array.Resize(ref updateList, updateList.Length + 1);
+                updateList[updateList.Length - 1] = panelName;
+                Array.Resize(ref versionList, versionList.Length + 1);
+                versionList[versionList.Length - 1] = InI.panelsFile.Read(panelName, "Version");
+                if (InI.ScriptsFileExist() && InI.scriptsFile.SectionExists("Scripts") && InI.scriptsFile.KeyExists("Scripts", "Version"))
+                {
+                    Array.Resize(ref newVersionList, newVersionList.Length + 1);
+                    newVersionList[newVersionList.Length - 1] = Regex.Match(_webBrowser.Source.ToString(), InI.scriptsFile.Read("Scripts", "Version")).Value.Replace("-", ".").TrimStart('.').TrimEnd('.');
+                }
+                if (!InI.panelsFile.Read(panelName, "Tags").Contains("Update"))
+                {
+                    if (!string.IsNullOrWhiteSpace(InI.panelsFile.Read(panelName, "Tags")))
+                        InI.panelsFile.Write(panelName, "Tags", InI.panelsFile.Read(panelName, "Tags") + ";Update");
                     else
-                        ((StackPanel)((mPage as MainPage).mainLB.Items[int.Parse(tagId) - 1] as ListBoxItem).Content).Tag += "Update";
+                        InI.panelsFile.Write(panelName, "Tags", InI.panelsFile.Read(panelName, "Tags") + "Update");
+                }
+
+                if(!(((StackPanel)(mPage.mainLB.Items[panelUpdatedIndex] as ListBoxItem).Content).Tag).ToString().Contains("Update"))
+                    if (!string.IsNullOrWhiteSpace((((StackPanel)(mPage.mainLB.Items[panelUpdatedIndex] as ListBoxItem).Content).Tag).ToString()))
+                        ((StackPanel)(mPage.mainLB.Items[panelUpdatedIndex] as ListBoxItem).Content).Tag += ";Update";
+                    else
+                        ((StackPanel)(mPage.mainLB.Items[panelUpdatedIndex] as ListBoxItem).Content).Tag += "Update";
             }
         }
 
         private void Search()
         {
-            if((mPage as MainPage).searchTB.Width == 0)
+            if(mPage.searchTB.Width == 0)
             {
-                (mPage as MainPage).searchTB.Width = 100;
-                (mPage as MainPage).searchTB.IsEnabled = true;
-                (mPage as MainPage).searchTB.Focus();
+                mPage.searchTB.Width = 100;
+                mPage.searchTB.IsEnabled = true;
+                mPage.searchTB.Focus();
             }
             else
             {
-                (mPage as MainPage).searchTB.Width = 0;
-                (mPage as MainPage).searchTB.Text = null;
-                (mPage as MainPage).searchTB.IsEnabled = false;
+                mPage.searchTB.Width = 0;
+                mPage.searchTB.Text = null;
+                mPage.searchTB.IsEnabled = false;
             }
         }
     }

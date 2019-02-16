@@ -129,11 +129,11 @@
   <data name="Add_Image" xml:space="preserve">
     <value>Imagine</value>
   </data>
-  <data name="Add_Link" xml:space="preserve">
-    <value>Link</value>
-  </data>
   <data name="Add_Name" xml:space="preserve">
     <value>Nume</value>
+  </data>
+  <data name="Add_Path" xml:space="preserve">
+    <value>Locatie</value>
   </data>
   <data name="Add_Site" xml:space="preserve">
     <value>Website</value>
@@ -272,6 +272,9 @@ Nu închideți acest program!</value>
   <data name="Settings_General_ExclusionList" xml:space="preserve">
     <value>Listă de excluderi de la căutarea actualizărilor: </value>
   </data>
+  <data name="Settings_General_HideOnStartUp" xml:space="preserve">
+    <value>Ascundeți la pornire: </value>
+  </data>
   <data name="Settings_General_Language" xml:space="preserve">
     <value>Limbă: </value>
   </data>
@@ -292,6 +295,18 @@ Nu închideți acest program!</value>
   </data>
   <data name="Title" xml:space="preserve">
     <value>Proiect</value>
+  </data>
+  <data name="Update_Current_Version" xml:space="preserve">
+    <value>Versiune curentă</value>
+  </data>
+  <data name="Update_Found_Begin" xml:space="preserve">
+    <value>Au fost găsite </value>
+  </data>
+  <data name="Update_Found_End" xml:space="preserve">
+    <value> actualizări noi.</value>
+  </data>
+  <data name="Update_New_Version" xml:space="preserve">
+    <value>Versiune noua</value>
   </data>
   <data name="Username" xml:space="preserve">
     <value>Utilizator</value>

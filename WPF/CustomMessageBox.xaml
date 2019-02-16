@@ -81,13 +81,20 @@
                            Stretch="Fill" 
                            VerticalAlignment="Top" 
                            HorizontalAlignment="Left" />
-                <TextBlock Name="Message"
+                    <TextBlock Name="Message"
                            Text="Message"
                            Margin="10 10 10 0"
                            FontSize="20"
                            Foreground="Red"
                            HorizontalAlignment="Center"
                            VerticalAlignment="Center"/>
+                    <ContentControl Name="Object"
+                                    Margin="10 10 10 0"
+                                    FontSize="20"
+                                    VerticalAlignment="Center" 
+                                    HorizontalAlignment="Center"
+                                    Visibility="Collapsed">
+                    </ContentControl>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" 
                             HorizontalAlignment="Center" 

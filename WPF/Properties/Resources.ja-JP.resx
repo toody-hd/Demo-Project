@@ -129,11 +129,11 @@
   <data name="Add_Image" xml:space="preserve">
     <value>画像</value>
   </data>
-  <data name="Add_Link" xml:space="preserve">
-    <value>リンク</value>
-  </data>
   <data name="Add_Name" xml:space="preserve">
     <value>名前</value>
+  </data>
+  <data name="Add_Path" xml:space="preserve">
+    <value>行く手</value>
   </data>
   <data name="Add_Site" xml:space="preserve">
     <value>ウェブサイト</value>
@@ -272,6 +272,9 @@
   <data name="Settings_General_ExclusionList" xml:space="preserve">
     <value>アップデートの検索からの除外リスト: </value>
   </data>
+  <data name="Settings_General_HideOnStartUp" xml:space="preserve">
+    <value>起動時に隠す： </value>
+  </data>
   <data name="Settings_General_Language" xml:space="preserve">
     <value>言語: </value>
   </data>
@@ -292,6 +295,18 @@
   </data>
   <data name="Title" xml:space="preserve">
     <value>プロジェクト</value>
+  </data>
+  <data name="Update_Current_Version" xml:space="preserve">
+    <value>現行版</value>
+  </data>
+  <data name="Update_Found_Begin" xml:space="preserve">
+    <value />
+  </data>
+  <data name="Update_Found_End" xml:space="preserve">
+    <value> つの新しいアップデートが見つかりました。</value>
+  </data>
+  <data name="Update_New_Version" xml:space="preserve">
+    <value>新しいバージョン</value>
   </data>
   <data name="Username" xml:space="preserve">
     <value>ユーザー名</value>

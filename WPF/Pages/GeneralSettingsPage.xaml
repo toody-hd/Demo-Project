@@ -12,16 +12,22 @@
     <Grid Margin="15 15" TextBlock.FontSize="15">
         <StackPanel>
             <StackPanel Orientation="Horizontal" >
-                <TextBlock Text="{x:Static p:Resources.Settings_General_Language}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock Text="{x:Static p:Resources.Settings_General_Language}" 
+                           HorizontalAlignment="Center" 
+                           VerticalAlignment="Center">
                 </TextBlock>
-                <ComboBox x:Name="langCB" TextBlock.FontSize="10">
-                    <ComboBoxItem Content="English" Selected="ComboBoxEnglish_Selected"/>
-                    <ComboBoxItem Content="Română" Selected="ComboBoxRomanien_Selected"/>
-                    <ComboBoxItem Content="Deutsch" Selected="ComboBoxGerman_Selected"/>
-                    <ComboBoxItem Content="日本語" Selected="ComboBoxJapanese_Selected"/>
+                <ComboBox Name="langCB" TextBlock.FontSize="10">
+                    <ComboBoxItem Content="English" 
+                                  Selected="ComboBoxEnglish_Selected"/>
+                    <ComboBoxItem Content="Română" 
+                                  Selected="ComboBoxRomanien_Selected"/>
+                    <ComboBoxItem Content="Deutsch" 
+                                  Selected="ComboBoxGerman_Selected"/>
+                    <ComboBoxItem Content="日本語" 
+                                  Selected="ComboBoxJapanese_Selected"/>
                 </ComboBox>
             </StackPanel>
-            <CheckBox x:Name="miniCB" 
+            <CheckBox Name="miniCB" 
                   Content="{x:Static p:Resources.Settings_General_MinimizationMode}"
                   FlowDirection="RightToLeft"
                   Padding="0 0 -5 0"
@@ -30,7 +36,7 @@
                   HorizontalContentAlignment="Center" 
                   VerticalContentAlignment="Center" 
                   VerticalAlignment="Center"/>
-            <CheckBox x:Name="topCB" 
+            <CheckBox Name="topCB" 
                   Content="{x:Static p:Resources.Settings_General_TopmostMode}"
                   FlowDirection="RightToLeft"
                   Padding="0 0 -5 0"
@@ -39,7 +45,7 @@
                   HorizontalContentAlignment="Center" 
                   VerticalContentAlignment="Center" 
                   VerticalAlignment="Center"/>
-            <CheckBox x:Name="messageCB" 
+            <CheckBox Name="messageCB" 
                   Content="{x:Static p:Resources.Settings_General_MessageSystemTray}"
                   FlowDirection="RightToLeft"
                   Padding="0 0 -5 0"
@@ -49,14 +55,40 @@
                   VerticalContentAlignment="Center" 
                   VerticalAlignment="Center"/>
             <StackPanel Orientation="Horizontal" >
-                <TextBlock Text="{x:Static p:Resources.Settings_General_ExclusionList}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock Text="{x:Static p:Resources.Settings_General_ExclusionList}" 
+                           HorizontalAlignment="Center" 
+                           VerticalAlignment="Center">
                 </TextBlock>
-                <ComboBox x:Name="excludeCB" 
+                <ComboBox Name="excludeCB" 
                           TextBlock.FontSize="10"/>
             </StackPanel>
-            <Expander Header="Custom geting data from link">
-                
-            </Expander>
+            <StackPanel Orientation="Horizontal" >
+                <TextBlock Text="{x:Static p:Resources.Settings_General_HideOnStartUp}" 
+                           HorizontalAlignment="Center" 
+                           VerticalAlignment="Center">
+                </TextBlock>
+                <ComboBox Name="hideOnStartUpCB" 
+                          TextBlock.FontSize="10"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Expander Style="{DynamicResource CustomExpander}">
+                    <Expander.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Custom Scripts"/>
+                            <Button Grid.Column="1" 
+                                Content="{StaticResource FontAwesomePlusIcon}"
+                                FontFamily="{StaticResource FontAwesome}"
+                                Style="{StaticResource IconGrowButton}"
+                                Height="25"
+                                VerticalAlignment="Top"
+                                HorizontalAlignment="Left"
+                                Command="{Binding CustomScriptCommand}"/>
+                        </StackPanel>
+                    </Expander.Header>
+                    <StackPanel Name="CustomScripSP" Margin="20,0,0,0">
+                    </StackPanel>
+                </Expander>
+            </StackPanel>
         </StackPanel>
     </Grid>
 </Page>

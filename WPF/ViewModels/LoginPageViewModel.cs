@@ -9,21 +9,22 @@ namespace WPF
 {
     public class LoginPageViewModel
     {
-        private Page mPage;
+        private LoginPage mPage;
+
         public LoginPageViewModel(Page page)
         {
-            mPage = page;
+            mPage = (LoginPage)page;
 
             LoginCommand = new RelayCommand(() => LogIn());
         }
 
         private void LogIn()
         {
-            if ((mPage as LoginPage).usernameTB.Text == "" || (mPage as LoginPage).passwordPB.SecurePassword.Length == 0)
+            if (mPage.usernameTB.Text == "" || mPage.passwordPB.SecurePassword.Length == 0)
             {
                 CustomMessageBox.Show(Properties.Resources.Message_Empty_User_Password, Properties.Resources.Error, MessageBoxButton.OK);
             }
-            else if((mPage as LoginPage).usernameTB.Text == "admin" && new System.Net.NetworkCredential(string.Empty, (mPage as LoginPage).passwordPB.SecurePassword).Password == "passx")
+            else if(mPage.usernameTB.Text == "admin" && new System.Net.NetworkCredential(string.Empty, mPage.passwordPB.SecurePassword).Password == "passx")
             {
                 var backgroundWorker = new BackgroundWorker();
 

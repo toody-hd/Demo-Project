@@ -129,8 +129,8 @@
   <data name="Add_Image" xml:space="preserve">
     <value>Image</value>
   </data>
-  <data name="Add_Link" xml:space="preserve">
-    <value>Link</value>
+  <data name="Add_Path" xml:space="preserve">
+    <value>Path</value>
   </data>
   <data name="Add_Name" xml:space="preserve">
     <value>Name</value>
@@ -311,5 +311,20 @@ Please don't close this program!</value>
   </data>
   <data name="Settings_General_ExclusionList" xml:space="preserve">
     <value>Exclusion list from searching of updates: </value>
+  </data>
+  <data name="Settings_General_HideOnStartUp" xml:space="preserve">
+    <value>Hide on startup: </value>
+  </data>
+  <data name="Update_Current_Version" xml:space="preserve">
+    <value>Current version</value>
+  </data>
+  <data name="Update_Found_Begin" xml:space="preserve">
+    <value>There are </value>
+  </data>
+  <data name="Update_Found_End" xml:space="preserve">
+    <value> new updates.</value>
+  </data>
+  <data name="Update_New_Version" xml:space="preserve">
+    <value>New Version</value>
   </data>
 </root>

@@ -65,8 +65,7 @@
                          IsEnabled="False"
                          VerticalContentAlignment="Center"
                          Width="0" Height="25" 
-                         TextChanged="SearchTB_TextChanged"
-                         LostFocus="SearchTB_LostFocus"/>
+                         TextChanged="SearchTB_TextChanged"/>
                 <Button Grid.Column="3"
                         Content="{StaticResource FontAwesomeSyncIcon}"
                         FontFamily="{StaticResource FontAwesome}"

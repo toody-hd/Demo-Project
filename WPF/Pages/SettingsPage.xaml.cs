@@ -2,9 +2,6 @@
 
 namespace WPF
 {
-    /// <summary>
-    /// Interaction logic for settingsPage.xaml
-    /// </summary>
     public partial class SettingsPage : Page
     {
         public SettingsPage()
