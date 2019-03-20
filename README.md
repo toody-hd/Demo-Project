@@ -4,6 +4,8 @@ The project was Created using Visual Studio 2017 and .NET Framework 4.6.1 on Win
 
 IMPORTANT : The user is "Admin" and the password is "passx"
 
+Download bin: https://mega.nz/#!2scFhQzZ!QuTtOiIFpr4XP4j2SUTwOyinVfi5wID_r5BdWBDVYCc
+
 This project was mainly created for my personal usage and because I'm passionate about learn more of C# and XAML.
 Descriptions of the project:
 The project main function is to keep record of some of you important programs or files. What exactly does it do?
